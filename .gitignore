@@ -1,0 +1,29 @@
+# Environment variables
+.env
+*.env
+
+# Existing auth files (ignore if already present)
+auth.php
+auth/
+
+# Logs
+*.log
+server.log
+
+# PHP temp files
+*.tmp
+*.temp
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Composer
+vendor/
+composer.lock
