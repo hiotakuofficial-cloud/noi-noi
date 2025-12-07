@@ -1,34 +1,4 @@
-[Sun Dec  7 19:26:21 2025] PHP 8.4.5 Development Server (http://localhost:8002) started
-[Sun Dec  7 19:26:23 2025] [::1]:35870 Accepted
-[Sun Dec  7 19:26:28 2025] [::1]:35870 [200]: POST /notification/api/app_send.php
-[Sun Dec  7 19:26:28 2025] [::1]:35870 Closing
-[Sun Dec  7 19:26:35 2025] [::1]:35890 Accepted
-[Sun Dec  7 19:26:39 2025] [::1]:35890 [200]: POST /notification/api/app_send.php
-[Sun Dec  7 19:26:39 2025] [::1]:35890 Closing
-[Sun Dec  7 19:27:42 2025] [::1]:35964 Accepted
-[Sun Dec  7 19:27:46 2025] [::1]:35964 [200]: POST /notification/api/send.php
-[Sun Dec  7 19:27:46 2025] [::1]:35964 Closing
-[Sun Dec  7 19:27:53 2025] [::1]:35974 Accepted
-[Sun Dec  7 19:27:56 2025] [::1]:35974 [200]: POST /notification/api/send.php
-[Sun Dec  7 19:27:56 2025] [::1]:35974 Closing
-[Sun Dec  7 19:28:03 2025] [::1]:35984 Accepted
-[Sun Dec  7 19:28:03 2025] [::1]:35984 [500]: POST /notification/api/send.php
-[Sun Dec  7 19:28:03 2025] [::1]:35984 Closing
-[Sun Dec  7 19:28:20 2025] [::1]:35996 Accepted
-[Sun Dec  7 19:28:23 2025] [::1]:35996 [200]: POST /notification/api/send.php
-[Sun Dec  7 19:28:23 2025] [::1]:35996 Closing
-[Sun Dec  7 19:37:20 2025] [::1]:36656 Accepted
-[Sun Dec  7 19:37:24 2025] [::1]:36656 [200]: POST /notification/api/send.php
-[Sun Dec  7 19:37:24 2025] [::1]:36656 Closing
-[Sun Dec  7 19:37:32 2025] [::1]:36680 Accepted
-[Sun Dec  7 19:37:35 2025] [::1]:36680 [200]: POST /notification/api/send.php
-[Sun Dec  7 19:37:35 2025] [::1]:36680 Closing
-[Sun Dec  7 19:37:44 2025] [::1]:36700 Accepted
-[Sun Dec  7 19:37:44 2025] [::1]:36700 [302]: POST /notification/login.php
-[Sun Dec  7 19:37:44 2025] [::1]:36700 Closing
-[Sun Dec  7 19:37:44 2025] [::1]:36702 Accepted
-[Sun Dec  7 19:37:44 2025] [::1]:36702 [401]: POST /notification/api/send.php
-[Sun Dec  7 19:37:44 2025] [::1]:36702 Closing
-[Sun Dec  7 19:38:23 2025] [::1]:36744 Accepted
-[Sun Dec  7 19:38:27 2025] [::1]:36744 [200]: POST /notification/api/dashboard_send.php
-[Sun Dec  7 19:38:27 2025] [::1]:36744 Closing
+[Sun Dec  7 19:40:52 2025] PHP 8.4.5 Development Server (http://localhost:8003) started
+[Sun Dec  7 19:40:54 2025] [::1]:39978 Accepted
+[Sun Dec  7 19:40:54 2025] [::1]:39978 [302]: HEAD /notification/dashboard.php
+[Sun Dec  7 19:40:54 2025] [::1]:39978 Closing
