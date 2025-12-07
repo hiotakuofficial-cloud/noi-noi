@@ -5,43 +5,61 @@
 let users = [];
 let selectedUser = null;
 
-// Templates
+// Templates for Hiotaku Anime App
 const templates = {
     welcome: {
         title: "🎉 Welcome to Hiotaku!",
-        body: "Welcome to Hiotaku! Discover amazing anime and movies. Start exploring now!",
+        body: "Welcome to Hiotaku! Discover amazing anime series and movies. Start exploring now!",
         type: "general",
-        screen: "/home"
+        screen: "/main"
     },
     update: {
         title: "📱 App Update Available",
         body: "A new version of Hiotaku is available! Update now to get the latest features and improvements.",
         type: "update",
-        screen: "/settings"
+        screen: "/profile"
     },
-    movie: {
-        title: "🎬 New Movie Added!",
-        body: "Check out the latest movie addition to our collection. Don't miss out on the action!",
-        type: "movie",
-        screen: "/movie-details"
+    new_anime: {
+        title: "🆕 New Anime Added!",
+        body: "Check out the latest anime addition to our collection. Don't miss out on the action!",
+        type: "new_anime",
+        screen: "/details"
+    },
+    new_episode: {
+        title: "📺 New Episode Available!",
+        body: "A new episode of your favorite anime is now available. Watch it now!",
+        type: "new_episode",
+        screen: "/details"
+    },
+    popular: {
+        title: "🔥 Trending Now!",
+        body: "Check out what's trending in the anime world. Popular series everyone's talking about!",
+        type: "popular",
+        screen: "/popular"
     },
     maintenance: {
         title: "🔧 Scheduled Maintenance",
         body: "We'll be performing maintenance from 2:00 AM to 4:00 AM. The app may be temporarily unavailable.",
         type: "announcement",
-        screen: "/announcements"
+        screen: "/main"
     },
     promotion: {
         title: "🎁 Special Offer!",
         body: "Limited time offer! Get premium features at 50% off. Offer valid until midnight!",
         type: "promotion",
-        screen: "/movies"
+        screen: "/main"
     },
     reminder: {
-        title: "👋 We Miss You!",
-        body: "Haven't watched anything lately? Check out our new recommendations just for you!",
+        title: "👋 Continue Watching!",
+        body: "Haven't watched anything lately? Check out your favorites and discover new episodes!",
         type: "reminder",
-        screen: "/movies"
+        screen: "/favourite"
+    },
+    hindi_dubbed: {
+        title: "🇮🇳 New Hindi Dubbed Anime!",
+        body: "Your favorite anime is now available in Hindi! Watch with Hindi dubbing.",
+        type: "new_anime",
+        screen: "/hindi-dubbed"
     }
 };
 
@@ -165,29 +183,35 @@ function useTemplate(templateKey) {
 // Update click action based on notification type
 function updateClickAction() {
     const notificationType = document.getElementById('notificationType').value;
-    const movieIdGroup = document.getElementById('movieIdGroup');
+    const animeIdGroup = document.getElementById('animeIdGroup');
     const clickScreen = document.getElementById('clickScreen');
     
-    if (notificationType === 'movie') {
-        movieIdGroup.style.display = 'block';
-        clickScreen.value = '/movie-details';
+    if (notificationType === 'new_anime' || notificationType === 'new_episode' || notificationType === 'favourite') {
+        animeIdGroup.style.display = 'block';
+        clickScreen.value = '/details';
     } else {
-        movieIdGroup.style.display = 'none';
-        document.getElementById('movieId').value = '';
+        animeIdGroup.style.display = 'none';
+        document.getElementById('animeId').value = '';
         
         // Set default screen based on type
         switch(notificationType) {
             case 'announcement':
-                clickScreen.value = '/announcements';
+                clickScreen.value = '/main';
+                break;
+            case 'popular':
+                clickScreen.value = '/popular';
                 break;
             case 'update':
-                clickScreen.value = '/settings';
+                clickScreen.value = '/profile';
                 break;
             case 'promotion':
-                clickScreen.value = '/movies';
+                clickScreen.value = '/main';
+                break;
+            case 'reminder':
+                clickScreen.value = '/favourite';
                 break;
             default:
-                clickScreen.value = '/home';
+                clickScreen.value = '/main';
         }
     }
 }
@@ -202,7 +226,7 @@ async function handleFormSubmit(event) {
     const type = document.getElementById('notificationType').value;
     const userId = document.getElementById('selectedUserId').value;
     const clickScreen = document.getElementById('clickScreen').value;
-    const movieId = document.getElementById('movieId').value;
+    const animeId = document.getElementById('animeId').value;
     
     // Validation
     if (sendType === 'specific' && !userId) {
@@ -229,9 +253,9 @@ async function handleFormSubmit(event) {
             click_action: 'FLUTTER_NOTIFICATION_CLICK'
         };
         
-        // Add movie ID if it's a movie notification
-        if (type === 'movie' && movieId) {
-            payload.movie_id = movieId;
+        // Add anime ID if it's an anime-specific notification
+        if ((type === 'new_anime' || type === 'new_episode' || type === 'favourite') && animeId) {
+            payload.anime_id = animeId;
         }
         
         const response = await fetch('api/dashboard_send.php', {

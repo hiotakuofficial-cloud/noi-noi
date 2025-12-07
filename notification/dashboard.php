@@ -399,28 +399,38 @@ $_SESSION['last_activity'] = time();
                             <select class="form-control" id="notificationType" onchange="updateClickAction()">
                                 <option value="general">General</option>
                                 <option value="announcement">Announcement</option>
-                                <option value="movie">New Movie</option>
+                                <option value="new_anime">New Anime Added</option>
+                                <option value="new_episode">New Episode Available</option>
+                                <option value="popular">Popular Anime</option>
                                 <option value="update">App Update</option>
                                 <option value="promotion">Promotion</option>
-                                <option value="reminder">Reminder</option>
+                                <option value="reminder">Watch Reminder</option>
+                                <option value="favourite">Favourite Update</option>
                             </select>
                         </div>
 
                         <div class="form-group">
                             <label>Click Action (Screen to Open):</label>
                             <select class="form-control" id="clickScreen">
-                                <option value="/home">Home Screen</option>
-                                <option value="/movies">Movies List</option>
-                                <option value="/movie-details">Movie Details</option>
+                                <option value="/main">Home Screen (MainScreen)</option>
+                                <option value="/search">Search Page</option>
+                                <option value="/details">Anime Details</option>
+                                <option value="/player">Video Player</option>
+                                <option value="/favourite">Favourites</option>
                                 <option value="/profile">User Profile</option>
-                                <option value="/announcements">Announcements</option>
-                                <option value="/settings">Settings</option>
+                                <option value="/popular">Popular Anime</option>
+                                <option value="/upcoming">Upcoming Anime</option>
+                                <option value="/anime-movies">Anime Movies</option>
+                                <option value="/hindi-dubbed">Hindi Dubbed</option>
+                                <option value="/recently-added">Recently Added</option>
+                                <option value="/login">Login Screen</option>
+                                <option value="/onboarding">Onboarding</option>
                             </select>
                         </div>
 
-                        <div class="form-group" id="movieIdGroup" style="display: none;">
-                            <label>Movie ID (for movie notifications):</label>
-                            <input type="text" class="form-control" id="movieId" placeholder="Enter movie ID...">
+                        <div class="form-group" id="animeIdGroup" style="display: none;">
+                            <label>Anime ID (for anime-specific notifications):</label>
+                            <input type="text" class="form-control" id="animeId" placeholder="Enter anime ID...">
                         </div>
 
                         <button type="submit" class="btn btn-primary">

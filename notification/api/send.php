@@ -86,8 +86,11 @@ try {
     ];
     
     // Add specific data based on notification type
-    if (isset($data['movie_id'])) {
-        $notificationData['movie_id'] = $data['movie_id'];
+    if (isset($data['anime_id'])) {
+        $notificationData['anime_id'] = $data['anime_id'];
+    }
+    if (isset($data['episode_number'])) {
+        $notificationData['episode_number'] = $data['episode_number'];
     }
     if (isset($data['user_target_id'])) {
         $notificationData['user_target_id'] = $data['user_target_id'];
