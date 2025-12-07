@@ -2,3 +2,9 @@
 [Sun Dec  7 19:40:54 2025] [::1]:39978 Accepted
 [Sun Dec  7 19:40:54 2025] [::1]:39978 [302]: HEAD /notification/dashboard.php
 [Sun Dec  7 19:40:54 2025] [::1]:39978 Closing
+[Sun Dec  7 19:52:07 2025] [::1]:40470 Accepted
+[Sun Dec  7 19:52:12 2025] [::1]:40470 [200]: POST /notification/api/send.php
+[Sun Dec  7 19:52:12 2025] [::1]:40470 Closing
+[Sun Dec  7 19:52:18 2025] [::1]:40500 Accepted
+[Sun Dec  7 19:52:22 2025] [::1]:40500 [200]: POST /notification/api/send.php
+[Sun Dec  7 19:52:22 2025] [::1]:40500 Closing

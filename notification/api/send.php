@@ -75,6 +75,27 @@ try {
     // Set default send type if not provided
     $sendType = $data['send_type'] ?? 'specific';
     
+    // Prepare notification data with click action support
+    $notificationData = [
+        'source' => 'flutter_app',
+        'timestamp' => date('c'),
+        'notification_type' => $data['type'] ?? 'general',
+        'click_action' => $data['click_action'] ?? 'FLUTTER_NOTIFICATION_CLICK',
+        'screen' => $data['screen'] ?? '/home',
+        'extra_data' => $data['data'] ?? []
+    ];
+    
+    // Add specific data based on notification type
+    if (isset($data['movie_id'])) {
+        $notificationData['movie_id'] = $data['movie_id'];
+    }
+    if (isset($data['user_target_id'])) {
+        $notificationData['user_target_id'] = $data['user_target_id'];
+    }
+    if (isset($data['action_data'])) {
+        $notificationData['action_data'] = $data['action_data'];
+    }
+    
     // Initialize notification sender
     $sender = new NotificationSender();
     
@@ -85,12 +106,7 @@ try {
             'title' => $data['title'],
             'body' => $data['body'],
             'type' => $data['type'] ?? 'general',
-            'data' => [
-                'source' => 'flutter_app',
-                'timestamp' => date('c'),
-                'notification_type' => $data['type'] ?? 'general',
-                'extra_data' => $data['data'] ?? []
-            ]
+            'data' => $notificationData
         ]);
     } else {
         // Send to specific user
@@ -102,12 +118,7 @@ try {
             'title' => $data['title'],
             'body' => $data['body'],
             'type' => $data['type'] ?? 'general',
-            'data' => [
-                'source' => 'flutter_app',
-                'timestamp' => date('c'),
-                'notification_type' => $data['type'] ?? 'general',
-                'extra_data' => $data['data'] ?? []
-            ]
+            'data' => $notificationData
         ]);
     }
     

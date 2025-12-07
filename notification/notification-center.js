@@ -10,32 +10,38 @@ const templates = {
     welcome: {
         title: "🎉 Welcome to Hiotaku!",
         body: "Welcome to Hiotaku! Discover amazing anime and movies. Start exploring now!",
-        type: "general"
+        type: "general",
+        screen: "/home"
     },
     update: {
         title: "📱 App Update Available",
         body: "A new version of Hiotaku is available! Update now to get the latest features and improvements.",
-        type: "update"
+        type: "update",
+        screen: "/settings"
     },
     movie: {
         title: "🎬 New Movie Added!",
         body: "Check out the latest movie addition to our collection. Don't miss out on the action!",
-        type: "announcement"
+        type: "movie",
+        screen: "/movie-details"
     },
     maintenance: {
         title: "🔧 Scheduled Maintenance",
         body: "We'll be performing maintenance from 2:00 AM to 4:00 AM. The app may be temporarily unavailable.",
-        type: "announcement"
+        type: "announcement",
+        screen: "/announcements"
     },
     promotion: {
         title: "🎁 Special Offer!",
         body: "Limited time offer! Get premium features at 50% off. Offer valid until midnight!",
-        type: "promotion"
+        type: "promotion",
+        screen: "/movies"
     },
     reminder: {
         title: "👋 We Miss You!",
         body: "Haven't watched anything lately? Check out our new recommendations just for you!",
-        type: "reminder"
+        type: "reminder",
+        screen: "/movies"
     }
 };
 
@@ -136,7 +142,7 @@ function selectUser(userId, username, email) {
     addLog(`Selected user: ${username}`, 'info');
 }
 
-// Use template
+// Update template to include click actions
 function useTemplate(templateKey) {
     const template = templates[templateKey];
     if (template) {
@@ -144,7 +150,45 @@ function useTemplate(templateKey) {
         document.getElementById('notificationBody').value = template.body;
         document.getElementById('notificationType').value = template.type;
         
+        // Set click action based on template
+        if (template.screen) {
+            document.getElementById('clickScreen').value = template.screen;
+        }
+        
+        // Show/hide movie ID field
+        updateClickAction();
+        
         addLog(`Applied template: ${templateKey}`, 'info');
+    }
+}
+
+// Update click action based on notification type
+function updateClickAction() {
+    const notificationType = document.getElementById('notificationType').value;
+    const movieIdGroup = document.getElementById('movieIdGroup');
+    const clickScreen = document.getElementById('clickScreen');
+    
+    if (notificationType === 'movie') {
+        movieIdGroup.style.display = 'block';
+        clickScreen.value = '/movie-details';
+    } else {
+        movieIdGroup.style.display = 'none';
+        document.getElementById('movieId').value = '';
+        
+        // Set default screen based on type
+        switch(notificationType) {
+            case 'announcement':
+                clickScreen.value = '/announcements';
+                break;
+            case 'update':
+                clickScreen.value = '/settings';
+                break;
+            case 'promotion':
+                clickScreen.value = '/movies';
+                break;
+            default:
+                clickScreen.value = '/home';
+        }
     }
 }
 
@@ -157,6 +201,8 @@ async function handleFormSubmit(event) {
     const body = document.getElementById('notificationBody').value;
     const type = document.getElementById('notificationType').value;
     const userId = document.getElementById('selectedUserId').value;
+    const clickScreen = document.getElementById('clickScreen').value;
+    const movieId = document.getElementById('movieId').value;
     
     // Validation
     if (sendType === 'specific' && !userId) {
@@ -178,8 +224,15 @@ async function handleFormSubmit(event) {
             title: title,
             body: body,
             type: type,
-            user_id: sendType === 'specific' ? userId : null
+            user_id: sendType === 'specific' ? userId : null,
+            screen: clickScreen,
+            click_action: 'FLUTTER_NOTIFICATION_CLICK'
         };
+        
+        // Add movie ID if it's a movie notification
+        if (type === 'movie' && movieId) {
+            payload.movie_id = movieId;
+        }
         
         const response = await fetch('api/dashboard_send.php', {
             method: 'POST',

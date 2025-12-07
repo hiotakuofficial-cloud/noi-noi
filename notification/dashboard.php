@@ -396,13 +396,31 @@ $_SESSION['last_activity'] = time();
 
                         <div class="form-group">
                             <label>Notification Type:</label>
-                            <select class="form-control" id="notificationType">
+                            <select class="form-control" id="notificationType" onchange="updateClickAction()">
                                 <option value="general">General</option>
                                 <option value="announcement">Announcement</option>
+                                <option value="movie">New Movie</option>
                                 <option value="update">App Update</option>
                                 <option value="promotion">Promotion</option>
                                 <option value="reminder">Reminder</option>
                             </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Click Action (Screen to Open):</label>
+                            <select class="form-control" id="clickScreen">
+                                <option value="/home">Home Screen</option>
+                                <option value="/movies">Movies List</option>
+                                <option value="/movie-details">Movie Details</option>
+                                <option value="/profile">User Profile</option>
+                                <option value="/announcements">Announcements</option>
+                                <option value="/settings">Settings</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" id="movieIdGroup" style="display: none;">
+                            <label>Movie ID (for movie notifications):</label>
+                            <input type="text" class="form-control" id="movieId" placeholder="Enter movie ID...">
                         </div>
 
                         <button type="submit" class="btn btn-primary">
