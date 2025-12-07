@@ -181,7 +181,7 @@ async function handleFormSubmit(event) {
             user_id: sendType === 'specific' ? userId : null
         };
         
-        const response = await fetch('api/send.php', {
+        const response = await fetch('api/dashboard_send.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
