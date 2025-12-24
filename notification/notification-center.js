@@ -8,56 +8,56 @@ let selectedUser = null;
 // Templates for Hiotaku Anime App
 const templates = {
     welcome: {
-        title: "🎉 Welcome to Hiotaku!",
-        body: "Welcome to Hiotaku! Discover amazing anime series and movies. Start exploring now!",
+        title: "Welcome to Hiotaku",
+        body: "Start exploring amazing anime series and movies available on our platform.",
         type: "general",
         screen: "/main"
     },
     update: {
-        title: "📱 App Update Available",
-        body: "A new version of Hiotaku is available! Update now to get the latest features and improvements.",
+        title: "App Update Available",
+        body: "A new version of Hiotaku is available with improved features and performance.",
         type: "update",
         screen: "/profile"
     },
     new_anime: {
-        title: "🆕 New Anime Added!",
-        body: "Check out the latest anime addition to our collection. Don't miss out on the action!",
+        title: "New Anime Added",
+        body: "Latest anime series has been added to our collection. Watch now!",
         type: "new_anime",
         screen: "/details"
     },
     new_episode: {
-        title: "📺 New Episode Available!",
-        body: "A new episode of your favorite anime is now available. Watch it now!",
+        title: "New Episode Available",
+        body: "A new episode of your favorite anime is now streaming.",
         type: "new_episode",
         screen: "/details"
     },
     popular: {
-        title: "🔥 Trending Now!",
-        body: "Check out what's trending in the anime world. Popular series everyone's talking about!",
+        title: "Trending Anime",
+        body: "Check out the most popular anime series that everyone is watching.",
         type: "popular",
         screen: "/popular"
     },
     maintenance: {
-        title: "🔧 Scheduled Maintenance",
-        body: "We'll be performing maintenance from 2:00 AM to 4:00 AM. The app may be temporarily unavailable.",
+        title: "Scheduled Maintenance",
+        body: "We will be performing maintenance from 2:00 AM to 4:00 AM. Service may be temporarily unavailable.",
         type: "announcement",
         screen: "/main"
     },
     promotion: {
-        title: "🎁 Special Offer!",
-        body: "Limited time offer! Get premium features at 50% off. Offer valid until midnight!",
+        title: "Special Offer",
+        body: "Limited time offer on premium features. Get access to exclusive content.",
         type: "promotion",
         screen: "/main"
     },
     reminder: {
-        title: "👋 Continue Watching!",
-        body: "Haven't watched anything lately? Check out your favorites and discover new episodes!",
+        title: "Continue Watching",
+        body: "Resume your favorite anime series and discover new episodes waiting for you.",
         type: "reminder",
         screen: "/favourite"
     },
     hindi_dubbed: {
-        title: "🇮🇳 New Hindi Dubbed Anime!",
-        body: "Your favorite anime is now available in Hindi! Watch with Hindi dubbing.",
+        title: "Hindi Dubbed Anime Available",
+        body: "Your favorite anime is now available with Hindi dubbing. Watch in your preferred language.",
         type: "new_anime",
         screen: "/hindi-dubbed"
     }

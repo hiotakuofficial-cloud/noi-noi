@@ -1,13 +1,31 @@
-[Sun Dec  7 19:40:52 2025] PHP 8.4.5 Development Server (http://localhost:8003) started
-[Sun Dec  7 19:40:54 2025] [::1]:39978 Accepted
-[Sun Dec  7 19:40:54 2025] [::1]:39978 [302]: HEAD /notification/dashboard.php
-[Sun Dec  7 19:40:54 2025] [::1]:39978 Closing
-[Sun Dec  7 19:52:07 2025] [::1]:40470 Accepted
-[Sun Dec  7 19:52:12 2025] [::1]:40470 [200]: POST /notification/api/send.php
-[Sun Dec  7 19:52:12 2025] [::1]:40470 Closing
-[Sun Dec  7 19:52:18 2025] [::1]:40500 Accepted
-[Sun Dec  7 19:52:22 2025] [::1]:40500 [200]: POST /notification/api/send.php
-[Sun Dec  7 19:52:22 2025] [::1]:40500 Closing
-[Sun Dec  7 19:55:47 2025] [::1]:40678 Accepted
-[Sun Dec  7 19:55:52 2025] [::1]:40678 [200]: POST /notification/api/send.php
-[Sun Dec  7 19:55:52 2025] [::1]:40678 Closing
+[Thu Dec 18 03:47:51 2025] PHP 8.4.5 Development Server (http://localhost:8000) started
+[Thu Dec 18 03:48:26 2025] [::1]:33308 Accepted
+[Thu Dec 18 03:48:40 2025] [::1]:33308 [200]: GET /hindiv2.php?action=hindi&token=afaea552101228848de8f8c7f48a1b7d7a6a042a6094274eaa9d30cb64bf91a7
+[Thu Dec 18 03:48:40 2025] [::1]:33308 Closing
+[Thu Dec 18 03:48:46 2025] [::1]:33322 Accepted
+[Thu Dec 18 03:48:49 2025] [::1]:33322 [200]: GET /hindiv2.php?action=getep&id=26&token=afaea552101228848de8f8c7f48a1b7d7a6a042a6094274eaa9d30cb64bf91a7
+[Thu Dec 18 03:48:49 2025] [::1]:33322 Closing
+[Thu Dec 18 03:48:54 2025] [::1]:33326 Accepted
+[Thu Dec 18 03:48:56 2025] [::1]:33326 [200]: GET /hindiv2.php?action=playep&id=26&ep=1&token=afaea552101228848de8f8c7f48a1b7d7a6a042a6094274eaa9d30cb64bf91a7
+[Thu Dec 18 03:48:56 2025] [::1]:33326 Closing
+[Thu Dec 18 03:50:03 2025] [::1]:33454 Accepted
+[Thu Dec 18 03:50:03 2025] [::1]:33454 [200]: GET /hindiv2.php?action=search&q=attack%20on%20titan&token=afaea552101228848de8f8c7f48a1b7d7a6a042a6094274eaa9d30cb64bf91a7
+[Thu Dec 18 03:50:03 2025] [::1]:33454 Closing
+[Thu Dec 18 03:50:08 2025] [::1]:33456 Accepted
+[Thu Dec 18 03:50:08 2025] [::1]:33456 [200]: GET /hindiv2.php?action=search&q=attack%20on%20titan&token=afaea552101228848de8f8c7f48a1b7d7a6a042a6094274eaa9d30cb64bf91a7
+[Thu Dec 18 03:50:08 2025] [::1]:33456 Closing
+[Thu Dec 18 03:50:15 2025] [::1]:33470 Accepted
+[Thu Dec 18 03:50:17 2025] [::1]:33470 [200]: GET /hindiv2.php?action=getep&id=171&token=afaea552101228848de8f8c7f48a1b7d7a6a042a6094274eaa9d30cb64bf91a7
+[Thu Dec 18 03:50:17 2025] [::1]:33470 Closing
+[Thu Dec 18 03:50:23 2025] [::1]:33480 Accepted
+[Thu Dec 18 03:50:25 2025] [::1]:33480 [200]: GET /hindiv2.php?action=playep&id=171&ep=1&token=afaea552101228848de8f8c7f48a1b7d7a6a042a6094274eaa9d30cb64bf91a7
+[Thu Dec 18 03:50:25 2025] [::1]:33480 Closing
+[Thu Dec 18 03:54:40 2025] [::1]:33568 Accepted
+[Thu Dec 18 03:54:40 2025] [::1]:33568 [200]: GET /hindiv2.php?action=playep&id=171&ep=1&token=afaea552101228848de8f8c7f48a1b7d7a6a042a6094274eaa9d30cb64bf91a7
+[Thu Dec 18 03:54:40 2025] [::1]:33568 Closing
+[Thu Dec 18 04:00:05 2025] [::1]:34124 Accepted
+[Thu Dec 18 04:00:05 2025] [::1]:34124 [200]: GET /hindiv2.php?action=playep&id=171&ep=1&token=afaea552101228848de8f8c7f48a1b7d7a6a042a6094274eaa9d30cb64bf91a7
+[Thu Dec 18 04:00:05 2025] [::1]:34124 Closing
+[Thu Dec 18 04:00:52 2025] [::1]:34132 Accepted
+[Thu Dec 18 04:00:52 2025] [::1]:34132 [200]: GET /hindiv2.php?action=playep&id=171&ep=1&token=afaea552101228848de8f8c7f48a1b7d7a6a042a6094274eaa9d30cb64bf91a7
+[Thu Dec 18 04:00:52 2025] [::1]:34132 Closing
