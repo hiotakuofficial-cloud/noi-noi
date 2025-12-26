@@ -1,0 +1,71 @@
+name: Flutter Build & Deploy
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  FLUTTER_VERSION: '3.16.0'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        environment: [development, staging, production]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: ${{ env.FLUTTER_VERSION }}
+        
+    - name: Install dependencies
+      run: flutter pub get
+      
+    - name: Run tests
+      run: flutter test
+      
+    - name: Build APK (Production)
+      if: matrix.environment == 'production'
+      run: |
+        flutter build apk --release \
+          --dart-define=API_URL=https://v1-w3sc.onrender.com \
+          --dart-define=API_TOKEN=${{ secrets.HIOTAKU_API_TOKEN }} \
+          --dart-define=ENVIRONMENT=production
+          
+    - name: Build APK (Development - Restricted)
+      if: matrix.environment == 'development'
+      run: |
+        flutter build apk --release \
+          --dart-define=API_URL=https://dev-api.hiotaku.com \
+          --dart-define=API_TOKEN=${{ secrets.DEV_API_TOKEN }} \
+          --dart-define=ENVIRONMENT=development \
+          --dart-define=ALLOW_DEV=true
+          
+    - name: Upload APK
+      uses: actions/upload-artifact@v3
+      with:
+        name: app-${{ matrix.environment }}.apk
+        path: build/app/outputs/flutter-apk/app-release.apk
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Download Production APK
+      uses: actions/download-artifact@v3
+      with:
+        name: app-production.apk
+        
+    - name: Deploy to Play Store
+      run: |
+        echo "Deploying to Google Play Store..."
+        # Add your deployment script here
