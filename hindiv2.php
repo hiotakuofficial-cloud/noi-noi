@@ -125,12 +125,23 @@ function searchAnime($query) {
         ];
     }
     
-    return array_slice($results, 0, 100);
+    return $results; // No limit - return all search results
 }
 
 function getHome() {
+    // Check for cached home data first
+    $cache_key = 'home_data_all';
+    $cache_file = '/tmp/hindisubanime_cache/' . md5($cache_key);
+    
+    if (file_exists($cache_file) && (time() - filemtime($cache_file)) < 86400) {
+        $cached_data = file_get_contents($cache_file);
+        if ($cached_data) {
+            return json_decode($cached_data, true);
+        }
+    }
+    
     $results = [];
-    $max_pages = 10; // Load 10 pages for ~200 anime (faster)
+    $max_pages = 45; // Increased from 20 to 45 for more anime
     
     for ($page = 1; $page <= $max_pages; $page++) {
         $url = ($page == 1) ? "https://hindisubanime.co/serie/" : "https://hindisubanime.co/serie/page/{$page}/";
@@ -142,7 +153,7 @@ function getHome() {
         preg_match_all('/<article[^>]*class="[^"]*post[^"]*"[^>]*>.*?<h2[^>]*class="entry-title"[^>]*>([^<]+)<\/h2>.*?<img[^>]*src="([^"]*)"[^>]*alt="([^"]*)"[^>]*\/?>.*?<a[^>]*href="([^"]*)"[^>]*class="lnk-blk"[^>]*><\/a>/s', $response, $matches, PREG_SET_ORDER);
         
         foreach ($matches as $match) {
-            if (count($match) >= 5 && count($results) < 500) {
+            if (count($match) >= 5) {
                 $title = trim($match[1]);
                 $thumbnail = $match[2];
                 $url = $match[4];
@@ -163,8 +174,11 @@ function getHome() {
             }
         }
         
-        // Stop if we have enough results
-        if (count($results) >= 200) break;
+        // If no results on this page, stop pagination
+        if (empty($matches)) break;
+        
+        // Stop early if we have enough results
+        if (count($results) >= 400) break;
     }
     
     // Fallback if scraping fails
@@ -190,6 +204,9 @@ function getHome() {
         }
     }
     
+    // Cache the results
+    file_put_contents($cache_file, json_encode($results));
+    
     return $results;
 }
 
@@ -198,17 +215,19 @@ function getHindi() {
 }
 
 function getAnimeInfo($id) {
-    // Try to find anime by ID
+    // Try to find anime by ID - match with hindiv2/hindiv3 IDs
     $anime_map = [
-        1960 => ['title' => 'One Piece', 'genres' => 'Action, Adventure, Shounen', 'synopsis' => 'Monkey D. Luffy sets off on his adventure to find the legendary treasure One Piece and become the Pirate King.'],
-        5363 => ['title' => 'Naruto', 'genres' => 'Action, Adventure, Shounen', 'synopsis' => 'Naruto Uzumaki is a young ninja who seeks recognition from his peers and dreams of becoming the Hokage.'],
-        6355 => ['title' => 'Dragon Ball', 'genres' => 'Action, Adventure, Shounen', 'synopsis' => 'Son Goku meets Bulma and starts his adventures to find the seven Dragon Balls.'],
-        6544 => ['title' => 'Attack on Titan', 'genres' => 'Action, Drama, Fantasy', 'synopsis' => 'Humanity fights for survival against giant humanoid Titans.'],
-        2394 => ['title' => 'Demon Slayer', 'genres' => 'Action, Historical, Shounen', 'synopsis' => 'Tanjiro Kamado becomes a demon slayer to save his sister Nezuko.'],
-        4105 => ['title' => 'Jujutsu Kaisen', 'genres' => 'Action, School, Shounen', 'synopsis' => 'Yuji Itadori joins a secret organization of Jujutsu Sorcerers.']
+        134 => ['title' => 'One Piece', 'genres' => 'Action, Adventure, Shounen', 'synopsis' => 'Monkey D. Luffy sets off on his adventure to find the legendary treasure One Piece and become the Pirate King.', 'thumb' => 'https://image.tmdb.org/t/p/w500/uiIB9ctqZFbfRXXimtpmZb5dusi.jpg'],
+        1960 => ['title' => 'One Piece', 'genres' => 'Action, Adventure, Shounen', 'synopsis' => 'Monkey D. Luffy sets off on his adventure to find the legendary treasure One Piece and become the Pirate King.', 'thumb' => 'https://image.tmdb.org/t/p/w500/uiIB9ctqZFbfRXXimtpmZb5dusi.jpg'],
+        5363 => ['title' => 'Naruto', 'genres' => 'Action, Adventure, Shounen', 'synopsis' => 'Naruto Uzumaki is a young ninja who seeks recognition from his peers and dreams of becoming the Hokage.', 'thumb' => 'https://image.tmdb.org/t/p/w500/vauCEnR7CiyBDzRCeElKkCaXIYu.jpg'],
+        6355 => ['title' => 'Dragon Ball', 'genres' => 'Action, Adventure, Shounen', 'synopsis' => 'Son Goku meets Bulma and starts his adventures to find the seven Dragon Balls.', 'thumb' => 'https://image.tmdb.org/t/p/w500/3wx3EAMtqnbSLhGG8NrqXriCUIQ.jpg'],
+        6544 => ['title' => 'Attack on Titan', 'genres' => 'Action, Drama, Fantasy', 'synopsis' => 'Humanity fights for survival against giant humanoid Titans.', 'thumb' => 'https://image.tmdb.org/t/p/w500/hTP1DtLGFamjfu8WqjnuQdP1n4i.jpg'],
+        2394 => ['title' => 'Demon Slayer', 'genres' => 'Action, Historical, Shounen', 'synopsis' => 'Tanjiro Kamado becomes a demon slayer to save his sister Nezuko.', 'thumb' => 'https://image.tmdb.org/t/p/w500/xUfRZu2mi8jH6SzQEJGP6tjBuYj.jpg'],
+        4105 => ['title' => 'Jujutsu Kaisen', 'genres' => 'Action, School, Shounen', 'synopsis' => 'Yuji Itadori joins a secret organization of Jujutsu Sorcerers.', 'thumb' => 'https://image.tmdb.org/t/p/w500/qCFdJHwjNwjbONvOQHdNAOhqWG1.jpg'],
+        9413 => ['title' => 'Your Lie in April', 'genres' => 'Comedy, Drama, Music, Romance', 'synopsis' => 'Piano prodigy Kousei Arima had a mental breakdown after his mother died, and now he cannot hear the sound of his piano.', 'thumb' => 'https://image.tmdb.org/t/p/w500/nksFLYTydth3ggWTmjNTByBulUZ.jpg']
     ];
     
-    $anime_data = $anime_map[$id] ?? ['title' => 'Anime ' . $id, 'genres' => 'Action, Adventure', 'synopsis' => 'Popular anime series available with Hindi subtitles.'];
+    $anime_data = $anime_map[$id] ?? ['title' => 'Anime ' . $id, 'genres' => 'Action, Adventure', 'synopsis' => 'Popular anime series available with Hindi subtitles.', 'thumb' => 'https://via.placeholder.com/300x400?text=Anime+' . $id];
     
     return [
         'id' => (int)$id,
@@ -218,33 +237,33 @@ function getAnimeInfo($id) {
         'language' => 'Hindi Subbed (Official)',
         'quality' => 'FHD, HD, SD',
         'synopsis' => $anime_data['synopsis'],
-        'thumbnail' => 'https://via.placeholder.com/300x400?text=' . urlencode($anime_data['title'])
+        'thumbnail' => $anime_data['thumb']
     ];
 }
 
 function getEpisodes($id) {
-    // Generate episodes based on anime
+    // Generate episodes based on anime - match with hindiv2/hindiv3 episode counts
     $episode_counts = [
+        134 => 1148,  // One Piece (match hindiv2 ID)
         1960 => 1148, // One Piece
         5363 => 720,  // Naruto
         6355 => 153,  // Dragon Ball
         6544 => 87,   // Attack on Titan
         2394 => 44,   // Demon Slayer
-        4105 => 24    // Jujutsu Kaisen
+        4105 => 24,   // Jujutsu Kaisen
+        9413 => 22    // Your Lie in April (match hindiv3 ID)
     ];
     
-    $count = $episode_counts[$id] ?? 12;
+    $count = $episode_counts[$id] ?? 100; // Default 100 episodes
     $episodes = [];
     
-    // Limit to reasonable number for API response
-    $max_episodes = min($count, 50);
-    
-    for ($i = 1; $i <= $max_episodes; $i++) {
+    // Generate all episodes without limit
+    for ($i = 1; $i <= $count; $i++) {
         $episodes[] = [
             'episode' => str_pad($i, 2, '0', STR_PAD_LEFT),
             'title' => 'Episode ' . str_pad($i, 2, '0', STR_PAD_LEFT),
             'id' => (string)$id,
-            'episode_id' => (string)$i  // Make it string to match hindiv2
+            'episode_id' => (string)$i
         ];
     }
     
