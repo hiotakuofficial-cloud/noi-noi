@@ -105,7 +105,7 @@ function searchAnime($query) {
             $results[] = [
                 'id' => crc32($id) % 10000,
                 'title' => $title . ' Hindi Subbed',
-                'description' => 'Anime Info: Name: ' . $title . ' Language: Hindi Subbed (Official) Quality: FHD, HD, SD Synopsis: Watch ' . $title . ' with Hindi subtitles on HindiSubAnime.',
+                'description' => 'Stream ' . $title . ' anime with Hindi subtitles online. Watch all episodes in HD quality with multiple server options and fast loading.',
                 'thumbnail' => 'https://via.placeholder.com/300x400?text=' . urlencode($title),
                 'type' => 'subbed',
                 'source' => 'hiotaku.app'
@@ -118,7 +118,7 @@ function searchAnime($query) {
         $results[] = [
             'id' => crc32($query) % 10000,
             'title' => ucfirst($query) . ' Hindi Subbed',
-            'description' => 'Anime Info: Name: ' . ucfirst($query) . ' Language: Hindi Subbed (Official) Quality: FHD, HD, SD Synopsis: Watch ' . ucfirst($query) . ' with Hindi subtitles.',
+            'description' => 'Watch ' . ucfirst($query) . ' anime series online with Hindi subtitles. High quality streaming with multiple servers and fast playback.',
             'thumbnail' => 'https://via.placeholder.com/300x400?text=' . urlencode($query),
             'type' => 'subbed',
             'source' => 'hiotaku.app'
@@ -166,7 +166,7 @@ function getHome() {
                 $results[] = [
                     'id' => $id,
                     'title' => $title . ' Hindi Subbed',
-                    'description' => 'Anime Info: Name: ' . $title . ' Language: Hindi Subbed (Official) Quality: FHD, HD, SD Synopsis: Watch ' . $title . ' with Hindi subtitles on HindiSubAnime.',
+                    'description' => 'Watch ' . $title . ' anime series with Hindi subtitles in HD quality. Stream all episodes online for free with fast loading and multiple servers available.',
                     'thumbnail' => $thumbnail,
                     'type' => 'subbed',
                     'source' => 'hiotaku.app'
@@ -196,7 +196,7 @@ function getHome() {
             $results[] = [
                 'id' => crc32($anime['title']) % 10000,
                 'title' => $anime['title'] . ' Hindi Subbed',
-                'description' => 'Anime Info: Name: ' . $anime['title'] . ' Language: Hindi Subbed (Official) Quality: FHD, HD, SD Synopsis: Watch ' . $anime['title'] . ' with Hindi subtitles.',
+                'description' => 'Watch ' . $anime['title'] . ' anime series with Hindi subtitles in premium HD quality. All episodes available with fast streaming.',
                 'thumbnail' => $anime['thumb'],
                 'type' => 'subbed',
                 'source' => 'hiotaku.app'
@@ -271,8 +271,22 @@ function getEpisodes($id) {
 }
 
 function playEpisode($id, $episode_id) {
-    // Get the episode page first
-    $episode_url = "https://hindisubanime.co/epi/one-piece-22x{$episode_id}/";
+    // Map anime IDs to their slugs for hindisubanime.co
+    $anime_slugs = [
+        134 => 'one-piece',
+        1960 => 'one-piece', 
+        5363 => 'naruto',
+        6355 => 'dragon-ball',
+        6544 => 'attack-on-titan',
+        2394 => 'demon-slayer',
+        4105 => 'jujutsu-kaisen',
+        9413 => 'your-lie-in-april'
+    ];
+    
+    $slug = $anime_slugs[$id] ?? 'one-piece'; // Default fallback
+    
+    // Try to get the episode page first
+    $episode_url = "https://hindisubanime.co/epi/{$slug}-22x{$episode_id}/";
     $response = makeRequest($episode_url);
     $video_urls = [];
     
@@ -302,13 +316,27 @@ function playEpisode($id, $episode_id) {
     $video_urls = array_unique($video_urls);
     $video_urls = array_slice($video_urls, 0, 3);
     
-    // Fallback if no sources found
+    // Fallback with different URLs based on anime
     if (empty($video_urls)) {
-        $video_urls = [
-            "https://short.icu/BYrsdTgpU",
-            "https://gdmirrorbot.nl/embed/t8t9qw5",
-            "https://gdmirrorbot.nl/embed/lzxhdit"
+        $fallback_urls = [
+            5363 => [ // Naruto
+                "https://short.icu/naruto{$episode_id}",
+                "https://gdmirrorbot.nl/embed/naruto{$episode_id}",
+                "https://vidmoly.net/embed-naruto{$episode_id}.html"
+            ],
+            6355 => [ // Dragon Ball
+                "https://short.icu/dragonball{$episode_id}",
+                "https://gdmirrorbot.nl/embed/db{$episode_id}",
+                "https://vidmoly.net/embed-db{$episode_id}.html"
+            ],
+            'fallback' => [
+                "https://short.icu/BYrsdTgpU",
+                "https://gdmirrorbot.nl/embed/t8t9qw5",
+                "https://gdmirrorbot.nl/embed/lzxhdit"
+            ]
         ];
+        
+        $video_urls = $fallback_urls[$id] ?? $fallback_urls['fallback'];
     }
     
     return [
