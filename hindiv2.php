@@ -270,30 +270,58 @@ function getEpisodes($id) {
         // Look for "Watch Here" links that lead to play.hinoplex.com
         preg_match_all('/href="(https:\/\/play\.hinoplex\.com\/[^"]+)"/', $content, $playMatches);
         
-        $episodes = [];
-        $episode_num = 1;
-        
-        foreach ($playMatches[1] as $playUrl) {
-            $episodes[] = [
-                'episode' => str_pad($episode_num, 2, '0', STR_PAD_LEFT),
-                'title' => 'Episode ' . str_pad($episode_num, 2, '0', STR_PAD_LEFT),
-                'id' => (string)$id,
-                'episode_id' => (string)$episode_num,
-                'watch_url' => $playUrl
-            ];
-            $episode_num++;
+        // Extract episode numbers from content
+        preg_match_all('/(?:episode|ep|e)\s*(\d+)/i', $content, $epMatches);
+        $maxEpisode = 1;
+        if (!empty($epMatches[1])) {
+            $maxEpisode = max($epMatches[1]);
         }
         
-        // If no episodes found, generate some default ones
-        if (empty($episodes)) {
-            for ($i = 1; $i <= 12; $i++) {
-                $episodes[] = [
-                    'episode' => str_pad($i, 2, '0', STR_PAD_LEFT),
-                    'title' => 'Episode ' . str_pad($i, 2, '0', STR_PAD_LEFT),
-                    'id' => (string)$id,
-                    'episode_id' => (string)$i
-                ];
+        // Look for episode ranges like [1-12] or [24] or (12 Episodes)
+        preg_match_all('/\[(\d+)(?:-(\d+))?\]|\((\d+)\s*(?:episodes?|eps?)\)/i', $post['title']['rendered'], $rangeMatches);
+        if (!empty($rangeMatches[1])) {
+            $maxEpisode = max($maxEpisode, (int)$rangeMatches[1][0]);
+            if (!empty($rangeMatches[2][0])) {
+                $maxEpisode = max($maxEpisode, (int)$rangeMatches[2][0]);
             }
+        }
+        if (!empty($rangeMatches[3])) {
+            $maxEpisode = max($maxEpisode, (int)$rangeMatches[3][0]);
+        }
+        
+        // Look for common anime episode patterns
+        if (stripos($post['title']['rendered'], 'season') !== false) {
+            $maxEpisode = max($maxEpisode, 24); // Default season length
+        }
+        
+        // Generate episodes based on detected count or default
+        $episodeCount = max($maxEpisode, 12);
+        
+        // Cap at reasonable limits
+        if ($episodeCount > 2000) $episodeCount = 24;
+        if ($episodeCount < 1) $episodeCount = 12;
+        
+        // Always generate full episode list
+        $episodes = [];
+        for ($i = 1; $i <= $episodeCount; $i++) {
+            $watchUrl = null;
+            // Try to find corresponding watch URL
+            if (isset($playMatches[1][$i-1])) {
+                $watchUrl = $playMatches[1][$i-1];
+            }
+            
+            $episode = [
+                'episode' => str_pad($i, 2, '0', STR_PAD_LEFT),
+                'title' => 'Episode ' . str_pad($i, 2, '0', STR_PAD_LEFT),
+                'id' => (string)$id,
+                'episode_id' => (string)$i
+            ];
+            
+            if ($watchUrl) {
+                $episode['watch_url'] = $watchUrl;
+            }
+            
+            $episodes[] = $episode;
         }
         
         return $episodes;
