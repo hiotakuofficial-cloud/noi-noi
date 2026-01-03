@@ -64,8 +64,16 @@ switch($action) {
     case 'download':
         getDownloadLinks();
         break;
+    case 'getzip':
+        $id = $_GET['id'] ?? '';
+        if (empty($id)) {
+            echo json_encode(['error' => 'ID required'], JSON_PRETTY_PRINT);
+            return;
+        }
+        getZipDownloads($id);
+        break;
     default:
-        echo json_encode(['error' => 'Invalid action. Use: home (with type=hindi-dub/hindi-sub/eng-sub/movie), search, get (with type=hindi-dub/hindi-sub/eng-sub/jap-eng), anime, download'], JSON_PRETTY_PRINT);
+        echo json_encode(['error' => 'Invalid action. Use: home (with type=hindi-dub/hindi-sub/eng-sub/movie), search, get (with type=hindi-dub/hindi-sub/eng-sub/jap-eng), anime, download, getzip'], JSON_PRETTY_PRINT);
         break;
 }
 
@@ -410,6 +418,67 @@ function getDownloadLinks() {
         
     } catch (Exception $e) {
         echo json_encode(['error' => 'Failed to extract download links'], JSON_PRETTY_PRINT);
+    }
+}
+
+function getZipDownloads($id) {
+    try {
+        $url = "https://animehindidub.com/wp-json/wp/v2/posts/" . $id;
+        $response = makeRequest($url);
+        $post = json_decode($response, true);
+        
+        if (!$post || !isset($post['content']['rendered'])) {
+            echo json_encode(['error' => 'Post not found'], JSON_PRETTY_PRINT);
+            return;
+        }
+        
+        $content = $post['content']['rendered'];
+        $zipLinks = [];
+        
+        // Extract ZIP download links - pattern for "Complete Zip" buttons
+        preg_match_all('/<a class="wp-block-button__link[^"]*" href="([^"]+)"[^>]*>([^<]*(?:zip|Zip|ZIP|Complete)[^<]*)<\/a>/i', $content, $zipMatches, PREG_SET_ORDER);
+        
+        foreach ($zipMatches as $match) {
+            $url = $match[1];
+            $text = trim($match[2]);
+            
+            // Determine quality and type from button text
+            $quality = 'Unknown';
+            $type = 'complete';
+            
+            if (preg_match('/1080p/i', $text)) {
+                $quality = '1080P';
+            } elseif (preg_match('/720p/i', $text)) {
+                $quality = '720P';
+            }
+            
+            // Determine platform from URL
+            $platform = 'Unknown';
+            if (strpos($url, 'bestfile.io') !== false) $platform = 'BestFile';
+            elseif (strpos($url, 'pixeldrain.com') !== false) $platform = 'PixelDrain';
+            elseif (strpos($url, 'mega.nz') !== false) $platform = 'Mega';
+            elseif (strpos($url, 'drive.google.com') !== false) $platform = 'Google Drive';
+            elseif (strpos($url, 'mediafire.com') !== false) $platform = 'MediaFire';
+            
+            $zipLinks[] = [
+                'url' => $url,
+                'quality' => $quality,
+                'type' => $type,
+                'platform' => $platform,
+                'text' => $text
+            ];
+        }
+        
+        echo json_encode([
+            'success' => true,
+            'id' => $id,
+            'title' => strip_tags($post['title']['rendered']),
+            'total_zip_links' => count($zipLinks),
+            'zip_downloads' => $zipLinks
+        ], JSON_PRETTY_PRINT);
+        
+    } catch (Exception $e) {
+        echo json_encode(['error' => 'Failed to get ZIP downloads'], JSON_PRETTY_PRINT);
     }
 }
 ?>
