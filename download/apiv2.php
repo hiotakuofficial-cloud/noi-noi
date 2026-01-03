@@ -9,6 +9,24 @@ verifyApiToken();
 $cache_dir = '/tmp/hindi_download_cache_v2/';
 if (!is_dir($cache_dir)) mkdir($cache_dir, 0755, true);
 
+function getCacheKey($url) {
+    return md5($url);
+}
+
+function getCache($key) {
+    global $cache_dir;
+    $file = $cache_dir . $key;
+    if (file_exists($file) && (time() - filemtime($file)) < 86400) { // 24h cache
+        return file_get_contents($file);
+    }
+    return false;
+}
+
+function setCache($key, $data) {
+    global $cache_dir;
+    file_put_contents($cache_dir . $key, $data);
+}
+
 $action = $_GET['action'] ?? '';
 
 switch($action) {
@@ -52,6 +70,13 @@ switch($action) {
 }
 
 function makeRequest($url) {
+    // Check cache first
+    $cache_key = getCacheKey($url);
+    $cached = getCache($cache_key);
+    if ($cached !== false) {
+        return $cached;
+    }
+    
     $context = stream_context_create([
         'http' => [
             'method' => 'GET',
@@ -59,7 +84,14 @@ function makeRequest($url) {
             'timeout' => 10
         ]
     ]);
-    return file_get_contents($url, false, $context);
+    
+    $response = file_get_contents($url, false, $context);
+    if ($response !== false && !empty($response)) {
+        setCache($cache_key, $response);
+        return $response;
+    }
+    
+    return false;
 }
 
 function getHomeContent($type) {
