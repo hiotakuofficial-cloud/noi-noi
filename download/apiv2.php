@@ -98,9 +98,9 @@ function getHomeContent($type) {
     try {
         $categoryMap = [
             'hindi-dub' => 9,    // Hindi Dub category
-            'hindi-sub' => 9,    // Same category
-            'eng-sub' => 9,      // Same category
-            'movie' => 7         // Movie category
+            'hindi-sub' => 2,    // Action category (different content)
+            'eng-sub' => 5,      // Comedy category (different content)
+            'movie' => 4         // Anime Movie category
         ];
         
         $categoryId = $categoryMap[$type] ?? 4;
