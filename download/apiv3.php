@@ -1,5 +1,10 @@
 <?php
 header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+
+// Token Authentication
+require_once '../auth.php';
+verifyApiToken();
 
 // Simple cache system
 $cache_dir = '/tmp/apiv3_cache/';
