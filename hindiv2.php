@@ -200,6 +200,7 @@ function getAnimeInfo($id) {
         'language' => !empty($languages) ? implode(', ', $languages) : 'Hindi Subbed',
         'quality' => '480p, 720p, 1080p',
         'synopsis' => $info['synopsis'] ?? 'Anime series description',
+        'description' => $info['synopsis'] ?? 'Anime series description', // Add description for Flutter app
         'thumbnail' => $info['thumbnail'] ?? null,
         'year' => 'Unknown', // Site doesn't have structured year data
         'status' => 'Completed', // Default status
