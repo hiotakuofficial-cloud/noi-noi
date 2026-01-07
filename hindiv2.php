@@ -180,15 +180,34 @@ function getAnimeInfo($id) {
         }
     }
     
+    // Extract episode count for episodes field
+    $episodeCount = 'Unknown';
+    if (preg_match('/(\d+)\s*Episodes?/i', $html, $match)) {
+        $episodeCount = $match[1] . ' Episodes';
+    }
+    
+    // Determine type based on URL structure
+    $type = 'TV Series';
+    if (preg_match('/canonical" href="https:\/\/animesalt\.top\/movies\//', $html)) {
+        $type = 'Movie';
+    }
+    
     return [
         'id' => (int)$id,
         'title' => $info['title'] ?? 'Unknown Anime',
         'name' => $info['title'] ?? 'Unknown Anime',
-        'genres' => !empty($genres) ? implode(', ', $genres) : 'Action, Adventure',
+        'genres' => !empty($genres) ? $genres : ['Action', 'Adventure'], // Return as array
         'language' => !empty($languages) ? implode(', ', $languages) : 'Hindi Subbed',
         'quality' => '480p, 720p, 1080p',
         'synopsis' => $info['synopsis'] ?? 'Anime series description',
-        'thumbnail' => $info['thumbnail'] ?? null
+        'thumbnail' => $info['thumbnail'] ?? null,
+        'year' => 'Unknown', // Site doesn't have structured year data
+        'status' => 'Completed', // Default status
+        'episodes' => $episodeCount, // Real episode count from site
+        'duration' => 'Unknown', // Site doesn't have duration data
+        'studio' => 'Unknown', // Site doesn't have studio data
+        'type' => $type, // Movie or TV Series based on URL
+        'rating' => 'Unknown' // Site doesn't have rating data
     ];
 }
 
