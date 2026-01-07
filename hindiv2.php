@@ -37,8 +37,21 @@ function makeRequest($url) {
     $context = stream_context_create([
         'http' => [
             'method' => 'GET',
-            'header' => 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-            'timeout' => 15
+            'header' => [
+                'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept: application/json, text/plain, */*',
+                'Accept-Language: en-US,en;q=0.9',
+                'Accept-Encoding: gzip, deflate, br',
+                'Referer: https://hinoplex.com/',
+                'Origin: https://hinoplex.com',
+                'Connection: keep-alive',
+                'Sec-Fetch-Dest: empty',
+                'Sec-Fetch-Mode: cors',
+                'Sec-Fetch-Site: same-origin',
+                'Cookie: _ga=GA1.1.123456789.1234567890; _ga_ABC123=GS1.1.1234567890.1.1.1234567890.0.0.0'
+            ],
+            'follow_location' => true,
+            'max_redirects' => 3
         ]
     ]);
     
