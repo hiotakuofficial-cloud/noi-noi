@@ -141,8 +141,8 @@ function getAnimeInfo($id) {
     // Extract title from title tag
     if (preg_match('/<title>([^<]+)<\/title>/', $html, $match)) {
         $title = trim(strip_tags($match[1]));
-        $title = str_replace(' - Watch Now in Hindi, Tamil, Malayalam, English & Japanese', '', $title);
-        $title = str_replace(' - Watch Now in Hindi, Tamil, Malayalam, English &amp; Japanese', '', $title);
+        // Remove all variations of "Watch Now" text
+        $title = preg_replace('/ - Watch Now.*$/', '', $title);
         $title = str_replace(' - Anime Salt', '', $title);
         $info['title'] = $title;
     }
@@ -199,8 +199,13 @@ function getEpisodes($id) {
     $episodes = [];
     $episodeCount = 12; // Default
     
-    // Check if it's a movie (type=subbed means movie)
-    if (strpos($html, '/movies/') !== false) {
+    // Check if it's a movie by checking canonical URL
+    $isMovie = false;
+    if (preg_match('/canonical" href="https:\/\/animesalt\.top\/movies\//', $html)) {
+        $isMovie = true;
+    }
+    
+    if ($isMovie) {
         // For movies, return single episode
         $episodes[] = [
             'episode' => '01',
