@@ -6,8 +6,8 @@ header('Access-Control-Allow-Origin: *');
 require_once __DIR__ . "/auth.php";
 verifyApiToken();
 
-$cache_dir = '/tmp/hindi_cache/';
-if (!is_dir($cache_dir)) mkdir($cache_dir, 0755, true);
+$cache_dir = __DIR__ . '/cache/hindi/';
+if (!is_dir($cache_dir)) @mkdir($cache_dir, 0755, true);
 
 function getCacheKey($url) {
     return md5($url);
@@ -38,7 +38,7 @@ function makeRequest($url) {
         'http' => [
             'method' => 'GET',
             'header' => 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-            'timeout' => 10
+            'timeout' => 15
         ]
     ]);
     

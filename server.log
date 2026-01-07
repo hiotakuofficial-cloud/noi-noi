@@ -1,0 +1,13 @@
+[Wed Jan  7 10:36:25 2026] PHP 8.4.5 Development Server (http://localhost:8000) started
+[Wed Jan  7 10:36:33 2026] [::1]:43452 Accepted
+[Wed Jan  7 10:36:33 2026] [::1]:43452 [200]: GET /api.php?action=info&token=afaea552101228848de8f8c7f48a1b7d7a6a042a6094274eaa9d30cb64bf91a7
+[Wed Jan  7 10:36:33 2026] [::1]:43452 Closing
+[Wed Jan  7 10:36:45 2026] [::1]:43460 Accepted
+[Wed Jan  7 10:36:45 2026] [::1]:43460 [200]: GET /hindiv2.php?action=hindi&token=afaea552101228848de8f8c7f48a1b7d7a6a042a6094274eaa9d30cb64bf91a7
+[Wed Jan  7 10:36:45 2026] [::1]:43460 Closing
+[Wed Jan  7 10:36:56 2026] [::1]:43462 Accepted
+[Wed Jan  7 10:36:56 2026] [::1]:43462 [404]: GET /hiotaku/api/ - No such file or directory
+[Wed Jan  7 10:36:56 2026] [::1]:43462 Closing
+[Wed Jan  7 10:37:17 2026] [::1]:43466 Accepted
+[Wed Jan  7 10:37:17 2026] [::1]:43466 [401]: GET /hiotaku/api/v1/chat/index.php?token=afaea552101228848de8f8c7f48a1b7d7a6a042a6094274eaa9d30cb64bf91a7
+[Wed Jan  7 10:37:17 2026] [::1]:43466 Closing
