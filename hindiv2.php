@@ -50,6 +50,7 @@ function makeRequest($url) {
                 'Sec-Fetch-Site: same-origin',
                 'Cookie: _ga=GA1.1.123456789.1234567890; _ga_ABC123=GS1.1.1234567890.1.1.1234567890.0.0.0'
             ],
+            'timeout' => 30,
             'follow_location' => true,
             'max_redirects' => 3
         ]
@@ -149,7 +150,16 @@ function getHome() {
         // Use hinoplex.com as primary source
         $url = "https://hinoplex.com/wp-json/wp/v2/posts?per_page=100&orderby=date&order=desc";
         $response = makeRequest($url);
+        
+        if (!$response) {
+            return ['error' => 'External API unavailable'];
+        }
+        
         $posts = json_decode($response, true);
+        
+        if (!$posts || !is_array($posts)) {
+            return ['error' => 'Invalid API response'];
+        }
         
         $anime_list = [];
         foreach ($posts as $post) {
@@ -159,8 +169,10 @@ function getHome() {
                 try {
                     $mediaUrl = "https://hinoplex.com/wp-json/wp/v2/media/" . $post['featured_media'];
                     $mediaResponse = makeRequest($mediaUrl);
-                    $media = json_decode($mediaResponse, true);
-                    $thumbnail = $media['source_url'] ?? null;
+                    if ($mediaResponse) {
+                        $media = json_decode($mediaResponse, true);
+                        $thumbnail = $media['source_url'] ?? null;
+                    }
                 } catch (Exception $e) {
                     $thumbnail = null;
                 }
@@ -179,7 +191,7 @@ function getHome() {
         return $anime_list;
         
     } catch (Exception $e) {
-        return ['error' => 'Failed to get home content'];
+        return ['error' => 'Failed to get home content: ' . $e->getMessage()];
     }
 }
 
