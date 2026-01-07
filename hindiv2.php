@@ -2,63 +2,31 @@
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
-// Token Authentication
-require_once __DIR__ . "/auth.php";
+require_once 'auth.php';
 verifyApiToken();
 
-$cache_dir = __DIR__ . '/cache/hindi/';
-if (!is_dir($cache_dir)) @mkdir($cache_dir, 0755, true);
-
-function getCacheKey($url) {
-    return md5($url);
-}
-
-function getCache($key) {
-    global $cache_dir;
-    $file = $cache_dir . $key;
-    if (file_exists($file) && (time() - filemtime($file)) < 86400) { // 24h cache
-        return file_get_contents($file);
-    }
-    return false;
-}
-
-function setCache($key, $data) {
-    global $cache_dir;
-    file_put_contents($cache_dir . $key, $data);
-}
+$cache_dir = '/tmp/animesalt_cache/';
+if (!is_dir($cache_dir)) @mkdir($cache_dir, 0777, true);
 
 function makeRequest($url) {
-    $cache_key = getCacheKey($url);
-    $cached = getCache($cache_key);
-    if ($cached !== false) {
-        return $cached;
+    $cache_key = md5($url);
+    $cache_file = $GLOBALS['cache_dir'] . $cache_key;
+    
+    if (file_exists($cache_file) && (time() - filemtime($cache_file)) < 3600) {
+        return file_get_contents($cache_file);
     }
     
     $context = stream_context_create([
         'http' => [
             'method' => 'GET',
-            'header' => [
-                'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                'Accept: application/json, text/plain, */*',
-                'Accept-Language: en-US,en;q=0.9',
-                'Accept-Encoding: gzip, deflate, br',
-                'Referer: https://hinoplex.com/',
-                'Origin: https://hinoplex.com',
-                'Connection: keep-alive',
-                'Sec-Fetch-Dest: empty',
-                'Sec-Fetch-Mode: cors',
-                'Sec-Fetch-Site: same-origin',
-                'Cookie: _ga=GA1.1.123456789.1234567890; _ga_ABC123=GS1.1.1234567890.1.1.1234567890.0.0.0'
-            ],
-            'timeout' => 30,
-            'follow_location' => true,
-            'max_redirects' => 3
+            'header' => 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'timeout' => 300
         ]
     ]);
     
     $response = @file_get_contents($url, false, $context);
-    if ($response !== false && !empty($response)) {
-        setCache($cache_key, $response);
+    if ($response !== false) {
+        @file_put_contents($cache_file, $response);
         return $response;
     }
     
@@ -66,440 +34,265 @@ function makeRequest($url) {
 }
 
 $action = $_GET['action'] ?? '';
-$id = $_GET['id'] ?? '';
-$query = $_GET['q'] ?? '';
 
-// HTML disguise page
-if(empty($action)) {
+if (empty($action)) {
     header('Content-Type: text/html');
-    echo '<!DOCTYPE html>
-<html>
-<head>
-    <title>🎌 Hindi Anime API System</title>
-    <style>
-        body { font-family: Arial; margin: 40px; background: #f5f5f5; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; }
-        h1 { color: #333; text-align: center; }
-        .status { background: #e8f5e8; padding: 15px; border-radius: 5px; margin: 20px 0; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>🎌 Hindi Anime Database System</h1>
-        <div class="status">
-            <h3>🔄 System Status: Online</h3>
-            <p>Hindi anime database synchronization active...</p>
-        </div>
-    </div>
-</body>
-</html>';
+    echo '<!DOCTYPE html><html><head><title>AnimeSalt Hindi API</title></head><body><h1>System Online</h1></body></html>';
     exit;
 }
 
 switch($action) {
     case 'home':
-        $result = getHome();
-        echo json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-        break;
     case 'hindi':
-        $result = getHindi();
-        echo json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        echo json_encode(getHindi(), JSON_PRETTY_PRINT);
         break;
     case 'search':
-        if (empty($query)) {
-            echo json_encode(['error' => 'Query parameter required'], JSON_PRETTY_PRINT);
-        } else {
-            $result = searchAnime($query);
-            echo json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-        }
+        $query = $_GET['q'] ?? '';
+        echo json_encode(searchAnime($query), JSON_PRETTY_PRINT);
         break;
     case 'info':
-        if (empty($id)) {
-            echo json_encode(['error' => 'ID parameter required'], JSON_PRETTY_PRINT);
-        } else {
-            $result = getAnimeInfo($id);
-            echo json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-        }
+        $id = $_GET['id'] ?? '';
+        echo json_encode(getAnimeInfo($id), JSON_PRETTY_PRINT);
         break;
     case 'getep':
-        if (empty($id)) {
-            echo json_encode(['error' => 'ID parameter required'], JSON_PRETTY_PRINT);
-        } else {
-            $result = getEpisodes($id);
-            echo json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-        }
+        $id = $_GET['id'] ?? '';
+        echo json_encode(getEpisodes($id), JSON_PRETTY_PRINT);
         break;
     case 'playep':
-        $episode_id = $_GET['ep'] ?? '';
-        if (empty($id) || empty($episode_id)) {
-            echo json_encode(['error' => 'ID and ep parameters required'], JSON_PRETTY_PRINT);
-        } else {
-            $result = playEpisode($id, $episode_id);
-            echo json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-        }
+        $id = $_GET['id'] ?? '';
+        $ep = $_GET['ep'] ?? '';
+        echo json_encode(playEpisode($id, $ep), JSON_PRETTY_PRINT);
         break;
     default:
-        echo json_encode([
-            'error' => 'Invalid action provided',
-            'message' => 'Available actions: home, hindi, info, search, getep, playep'
-        ], JSON_PRETTY_PRINT);
-}
-
-function getHome() {
-    try {
-        // Use hinoplex.com as primary source
-        $url = "https://hinoplex.com/wp-json/wp/v2/posts?per_page=100&orderby=date&order=desc";
-        $response = makeRequest($url);
-        
-        if (!$response) {
-            return ['error' => 'External API unavailable'];
-        }
-        
-        $posts = json_decode($response, true);
-        
-        if (!$posts || !is_array($posts)) {
-            return ['error' => 'Invalid API response'];
-        }
-        
-        $anime_list = [];
-        foreach ($posts as $post) {
-            // Get featured image
-            $thumbnail = null;
-            if (!empty($post['featured_media'])) {
-                try {
-                    $mediaUrl = "https://hinoplex.com/wp-json/wp/v2/media/" . $post['featured_media'];
-                    $mediaResponse = makeRequest($mediaUrl);
-                    if ($mediaResponse) {
-                        $media = json_decode($mediaResponse, true);
-                        $thumbnail = $media['source_url'] ?? null;
-                    }
-                } catch (Exception $e) {
-                    $thumbnail = null;
-                }
-            }
-            
-            $anime_list[] = [
-                'id' => $post['id'],
-                'title' => strip_tags($post['title']['rendered']),
-                'description' => strip_tags($post['excerpt']['rendered']),
-                'thumbnail' => $thumbnail,
-                'type' => 'subbed',
-                'source' => 'hiotaku.app'
-            ];
-        }
-        
-        return $anime_list;
-        
-    } catch (Exception $e) {
-        return ['error' => 'Failed to get home content: ' . $e->getMessage()];
-    }
+        echo json_encode(['error' => 'Invalid action']);
 }
 
 function getHindi() {
-    return getHome();
-}
-
-function searchAnime($query) {
-    try {
-        $url = "https://hinoplex.com/wp-json/wp/v2/posts?search=" . urlencode($query) . "&per_page=100";
-        $response = makeRequest($url);
-        $posts = json_decode($response, true);
+    $anime_list = [];
+    
+    // Scrape first 20 pages to get more content
+    for ($page = 1; $page <= 20; $page++) {
+        $url = $page == 1 ? 'https://animesalt.top/category/language/hindi/' : 'https://animesalt.top/category/language/hindi/page/' . $page . '/';
+        $html = makeRequest($url);
         
-        $results = [];
-        foreach ($posts as $post) {
-            // Get featured image
-            $thumbnail = null;
-            if (!empty($post['featured_media'])) {
-                try {
-                    $mediaUrl = "https://hinoplex.com/wp-json/wp/v2/media/" . $post['featured_media'];
-                    $mediaResponse = makeRequest($mediaUrl);
-                    $media = json_decode($mediaResponse, true);
-                    $thumbnail = $media['source_url'] ?? null;
-                } catch (Exception $e) {
-                    $thumbnail = null;
-                }
+        if (!$html) continue;
+        
+        // Extract anime posts
+        preg_match_all('/<li[^>]*class="[^"]*post-(\d+)[^"]*"[^>]*>.*?<h2[^>]*class="entry-title"[^>]*>([^<]+)<\/h2>.*?data-src="([^"]*)"[^>]*alt="[^"]*"[^>]*class="lazyload".*?<a href="([^"]*)"[^>]*class="lnk-blk"><\/a>/s', $html, $matches, PREG_SET_ORDER);
+        
+        foreach ($matches as $match) {
+            $thumbnail = $match[3];
+            if (strpos($thumbnail, '//') === 0) {
+                $thumbnail = 'https:' . $thumbnail;
             }
             
-            $results[] = [
-                'id' => $post['id'],
-                'title' => strip_tags($post['title']['rendered']),
-                'description' => strip_tags($post['excerpt']['rendered']),
+            $anime_list[] = [
+                'id' => $match[1],
+                'title' => trim($match[2]),
+                'description' => 'Hindi anime content',
                 'thumbnail' => $thumbnail,
-                'type' => 'subbed',
+                'type' => strpos($match[4], '/series/') !== false ? 'series' : 'subbed',
                 'source' => 'hiotaku.app'
             ];
         }
         
-        return $results;
-        
-    } catch (Exception $e) {
-        return ['error' => 'Search failed'];
+        // Stop if we have enough content
+        if (count($anime_list) >= 200) break;
     }
+    
+    return $anime_list;
+}
+
+function searchAnime($query) {
+    if (empty($query)) return ['error' => 'Query required'];
+    
+    $html = makeRequest('https://animesalt.top/?s=' . urlencode($query));
+    if (!$html) return ['error' => 'Search failed'];
+    
+    $results = [];
+    
+    preg_match_all('/<li[^>]*class="[^"]*post-(\d+)[^"]*"[^>]*>.*?<h2[^>]*class="entry-title"[^>]*>([^<]+)<\/h2>.*?data-src="([^"]*)"[^>]*alt="[^"]*"[^>]*class="lazyload".*?<a href="([^"]*)"[^>]*class="lnk-blk"><\/a>/s', $html, $matches, PREG_SET_ORDER);
+    
+    foreach ($matches as $match) {
+        $thumbnail = $match[3];
+        if (strpos($thumbnail, '//') === 0) {
+            $thumbnail = 'https:' . $thumbnail;
+        }
+        
+        $results[] = [
+            'id' => $match[1],
+            'title' => trim($match[2]),
+            'description' => 'Search result',
+            'thumbnail' => $thumbnail,
+            'type' => 'subbed',
+            'source' => 'hiotaku.app'
+        ];
+    }
+    
+    return $results;
 }
 
 function getAnimeInfo($id) {
-    try {
-        $url = "https://hinoplex.com/wp-json/wp/v2/posts/" . $id;
-        $response = makeRequest($url);
-        $post = json_decode($response, true);
-        
-        $content = $post['content']['rendered'];
-        
-        // Extract anime info
-        $info = [];
-        if (preg_match('/<p><strong>Genre:\s*([^<]+)<\/strong>.*?<strong>Language:\s*([^<]+)<\/strong>.*?<strong>Quality:\s*([^<]+)<\/strong><\/p>/s', $content, $infoMatch)) {
-            $info = [
-                'genres' => trim(strip_tags($infoMatch[1])),
-                'language' => trim(strip_tags($infoMatch[2])),
-                'quality' => trim(strip_tags($infoMatch[3]))
-            ];
-        }
-        
-        // Get featured image
-        $thumbnail = null;
-        if (!empty($post['featured_media'])) {
-            try {
-                $mediaUrl = "https://hinoplex.com/wp-json/wp/v2/media/" . $post['featured_media'];
-                $mediaResponse = makeRequest($mediaUrl);
-                $media = json_decode($mediaResponse, true);
-                $thumbnail = $media['source_url'] ?? null;
-            } catch (Exception $e) {
-                $thumbnail = null;
+    $html = makeRequest('https://animesalt.top/?p=' . $id);
+    if (!$html) return ['error' => 'Anime not found'];
+    
+    $info = [];
+    
+    // Extract title from title tag
+    if (preg_match('/<title>([^<]+)<\/title>/', $html, $match)) {
+        $title = trim(strip_tags($match[1]));
+        $title = str_replace(' - Watch Now in Hindi, Tamil, Malayalam, English & Japanese', '', $title);
+        $title = str_replace(' - Watch Now in Hindi, Tamil, Malayalam, English &amp; Japanese', '', $title);
+        $title = str_replace(' - Anime Salt', '', $title);
+        $info['title'] = $title;
+    }
+    
+    // Extract real synopsis from overview section
+    if (preg_match('/<div id="overview-text"[^>]*>(.*?)<\/div>/s', $html, $match)) {
+        $synopsis = strip_tags($match[1]);
+        $synopsis = trim(preg_replace('/\s+/', ' ', $synopsis));
+        $info['synopsis'] = $synopsis;
+    } elseif (preg_match('/<meta name="description" content="([^"]*)"/', $html, $match)) {
+        $synopsis = html_entity_decode($match[1]);
+        $info['synopsis'] = $synopsis;
+    }
+    
+    // Extract genres and languages from links
+    $genres = [];
+    $languages = [];
+    
+    if (preg_match_all('/>([^<]*)<\/a>/', $html, $matches)) {
+        foreach ($matches[1] as $match) {
+            $item = trim($match);
+            if (in_array(strtolower($item), ['action', 'adventure', 'fantasy', 'shounen', 'comedy', 'drama', 'romance', 'sci-fi', 'thriller'])) {
+                $genres[] = $item;
+            } elseif (in_array(strtolower($item), ['hindi', 'english', 'japanese', 'tamil', 'telugu', 'malayalam', 'bengali'])) {
+                $languages[] = $item;
             }
         }
-        
-        return [
-            'id' => (int)$id,
-            'title' => strip_tags($post['title']['rendered']),
-            'name' => strip_tags($post['title']['rendered']),
-            'genres' => $info['genres'] ?? 'Action, Adventure',
-            'language' => $info['language'] ?? 'Hindi Subbed',
-            'quality' => $info['quality'] ?? 'FHD, HD, SD',
-            'synopsis' => strip_tags($post['excerpt']['rendered']),
-            'thumbnail' => $thumbnail
-        ];
-        
-    } catch (Exception $e) {
-        return ['error' => 'Failed to get anime info'];
     }
+    
+    // Extract poster
+    if (preg_match('/data-src="([^"]*)"[^>]*alt="[^"]*"[^>]*class="lazyload"/', $html, $match)) {
+        $info['thumbnail'] = $match[1];
+        if (strpos($info['thumbnail'], '//') === 0) {
+            $info['thumbnail'] = 'https:' . $info['thumbnail'];
+        }
+    }
+    
+    return [
+        'id' => (int)$id,
+        'title' => $info['title'] ?? 'Unknown Anime',
+        'name' => $info['title'] ?? 'Unknown Anime',
+        'genres' => !empty($genres) ? implode(', ', $genres) : 'Action, Adventure',
+        'language' => !empty($languages) ? implode(', ', $languages) : 'Hindi Subbed',
+        'quality' => '480p, 720p, 1080p',
+        'synopsis' => $info['synopsis'] ?? 'Anime series description',
+        'thumbnail' => $info['thumbnail'] ?? null
+    ];
 }
 
 function getEpisodes($id) {
-    try {
-        $url = "https://hinoplex.com/wp-json/wp/v2/posts/" . $id;
-        $response = makeRequest($url);
-        $post = json_decode($response, true);
-        
-        $content = $post['content']['rendered'];
-        
-        // Look for "Watch Here" links that lead to play.hinoplex.com
-        preg_match_all('/href="(https:\/\/play\.hinoplex\.com\/[^"]+)"/', $content, $playMatches);
-        
-        // Extract episode numbers from content
-        preg_match_all('/(?:episode|ep|e)\s*(\d+)/i', $content, $epMatches);
-        $maxEpisode = 1;
-        if (!empty($epMatches[1])) {
-            $maxEpisode = max($epMatches[1]);
-        }
-        
-        // Look for episode ranges like [1-12] or [24] or (12 Episodes)
-        preg_match_all('/\[(\d+)(?:-(\d+))?\]|\((\d+)\s*(?:episodes?|eps?)\)/i', $post['title']['rendered'], $rangeMatches);
-        if (!empty($rangeMatches[1])) {
-            $maxEpisode = max($maxEpisode, (int)$rangeMatches[1][0]);
-            if (!empty($rangeMatches[2][0])) {
-                $maxEpisode = max($maxEpisode, (int)$rangeMatches[2][0]);
-            }
-        }
-        if (!empty($rangeMatches[3])) {
-            $maxEpisode = max($maxEpisode, (int)$rangeMatches[3][0]);
-        }
-        
-        // Look for common anime episode patterns
-        if (stripos($post['title']['rendered'], 'season') !== false) {
-            $maxEpisode = max($maxEpisode, 24); // Default season length
-        }
-        
-        // Generate episodes based on detected count or default
-        $episodeCount = max($maxEpisode, 12);
-        
-        // Cap at reasonable limits
-        if ($episodeCount > 2000) $episodeCount = 24;
-        if ($episodeCount < 1) $episodeCount = 12;
-        
-        // Always generate full episode list
-        $episodes = [];
-        for ($i = 1; $i <= $episodeCount; $i++) {
-            $watchUrl = null;
-            // Try to find corresponding watch URL
-            if (isset($playMatches[1][$i-1])) {
-                $watchUrl = $playMatches[1][$i-1];
-            }
-            
-            $episode = [
-                'episode' => str_pad($i, 2, '0', STR_PAD_LEFT),
-                'title' => 'Episode ' . str_pad($i, 2, '0', STR_PAD_LEFT),
-                'id' => (string)$id,
-                'episode_id' => (string)$i
-            ];
-            
-            if ($watchUrl) {
-                $episode['watch_url'] = $watchUrl;
-            }
-            
-            $episodes[] = $episode;
-        }
-        
+    $html = makeRequest('https://animesalt.top/?p=' . $id);
+    if (!$html) return ['error' => 'Episodes not found'];
+    
+    $episodes = [];
+    $episodeCount = 12; // Default
+    
+    // Check if it's a movie (type=subbed means movie)
+    if (strpos($html, '/movies/') !== false) {
+        // For movies, return single episode
+        $episodes[] = [
+            'episode' => '01',
+            'title' => 'Movie',
+            'id' => (string)$id,
+            'episode_id' => '1',
+            'watch_url' => 'https://animesalt.top/movies/' . $id . '/'
+        ];
         return $episodes;
-        
-    } catch (Exception $e) {
-        return ['error' => 'Failed to get episodes'];
     }
+    
+    // Extract real episode count from the page for series
+    if (preg_match('/(\d+)\s*Episodes?/i', $html, $match)) {
+        $episodeCount = (int)$match[1];
+    }
+    
+    // No limits - return all episodes
+    if ($episodeCount < 1) $episodeCount = 12;
+    
+    // Generate episodes based on real count
+    for ($i = 1; $i <= $episodeCount; $i++) {
+        $episodes[] = [
+            'episode' => str_pad($i, 2, '0', STR_PAD_LEFT),
+            'title' => 'Episode ' . str_pad($i, 2, '0', STR_PAD_LEFT),
+            'id' => (string)$id,
+            'episode_id' => (string)$i,
+            'watch_url' => 'https://animesalt.top/episode/' . $id . '-' . $i . '/'
+        ];
+    }
+    
+    return $episodes;
 }
 
 function playEpisode($id, $episode_id) {
-    try {
-        $url = "https://hinoplex.com/wp-json/wp/v2/posts/" . $id;
-        $response = makeRequest($url);
-        $post = json_decode($response, true);
-        
-        $content = $post['content']['rendered'];
-        
-        // Look for "Watch Here" links
-        preg_match_all('/href="(https:\/\/play\.hinoplex\.com\/[^"]+)"/', $content, $playMatches);
-        
-        $video_urls = [];
-        
-        // Try to get the specific episode URL
-        if (!empty($playMatches[1])) {
-            $play_url = $playMatches[1][0]; // Fixed: use first match properly
-            
-            // Get the player page
-            $player_response = makeRequest($play_url);
-            if ($player_response) {
-                // Look for common video hosting iframes
-                $iframe_patterns = [
-                    '/src="(https:\/\/[^"]*(?:streamtape|doodstream|mixdrop|upstream|vidoza|streamlare|filemoon)[^"]*)"/',
-                    '/src="(https:\/\/[^"]*(?:embed|player)[^"]*)"/',
-                    '/data-src="([^"]*)"/',
-                    '/"(https:\/\/[^"]*\.m3u8[^"]*)"/',
-                    '/"(https:\/\/[^"]*(?:mp4|mkv|avi)[^"]*)"/'
-                ];
-                
-                foreach ($iframe_patterns as $pattern) {
-                    preg_match_all($pattern, $player_response, $matches);
-                    foreach ($matches[1] as $match_url) {
-                        if (strpos($match_url, 'http') === 0 && 
-                            !strpos($match_url, 'googletagmanager') && 
-                            !strpos($match_url, 'jquery') &&
-                            !strpos($match_url, '.js') &&
-                            !strpos($match_url, '.css')) {
-                            $video_urls[] = $match_url;
-                        }
-                    }
-                }
-                
-                // Extract base64 encoded URLs from JavaScript
-                preg_match_all('/atob\(["\']([^"\']+)["\']\)/', $player_response, $base64_matches);
-                foreach ($base64_matches[1] as $encoded) {
-                    $decoded = base64_decode($encoded);
-                    if (strpos($decoded, 'http') === 0) {
-                        $video_urls[] = $decoded;
-                    }
-                }
-                
-                // Look for base64 in data attributes
-                preg_match_all('/data-[^=]*="([A-Za-z0-9+\/=]{50,})"/', $player_response, $data_base64_matches);
-                foreach ($data_base64_matches[1] as $encoded) {
-                    $decoded = base64_decode($encoded);
-                    if (strpos($decoded, 'http') === 0) {
-                        $video_urls[] = $decoded;
-                    }
-                }
-                
-                // Look for base64 in script src
-                preg_match_all('/src="data:text\/javascript;base64,([^"]+)"/', $player_response, $script_base64_matches);
-                foreach ($script_base64_matches[1] as $encoded) {
-                    $decoded = base64_decode($encoded);
-                    // Look for URLs in decoded JavaScript
-                    preg_match_all('/(https?:\/\/[^\s"\'<>]+)/', $decoded, $url_matches);
-                    foreach ($url_matches[1] as $url) {
-                        $video_urls[] = $url;
-                    }
-                }
-                
-                // Look for any base64 strings that might contain URLs
-                preg_match_all('/[A-Za-z0-9+\/=]{100,}/', $player_response, $long_base64_matches);
-                foreach ($long_base64_matches[0] as $encoded) {
-                    $decoded = base64_decode($encoded);
-                    if ($decoded && strpos($decoded, 'http') !== false) {
-                        preg_match_all('/(https?:\/\/[^\s"\'<>]+)/', $decoded, $url_matches);
-                        foreach ($url_matches[1] as $url) {
-                            $video_urls[] = $url;
-                        }
-                    }
-                }
-                
-                // Look for URLs in any JavaScript variables
-                preg_match_all('/(?:src|url|link|video|stream)\s*[:=]\s*["\']([^"\']+)["\']/', $player_response, $js_var_matches);
-                foreach ($js_var_matches[1] as $url) {
-                    if (strpos($url, 'http') === 0) {
-                        $video_urls[] = $url;
-                    }
-                }
-                
-                // Look for URLs in HTML comments
-                preg_match_all('/<!--.*?(https?:\/\/[^\s]+).*?-->/', $player_response, $comment_matches);
-                foreach ($comment_matches[1] as $url) {
-                    $video_urls[] = $url;
-                }
-                
-                // Look for any HTTP URLs in the page
-                preg_match_all('/(https?:\/\/[^\s"\'<>]+)/', $player_response, $all_url_matches);
-                foreach ($all_url_matches[1] as $url) {
-                    $video_urls[] = $url;
-                }
-            }
+    // Get anime slug from the anime page first
+    $animeHtml = makeRequest('https://animesalt.top/?p=' . $id);
+    $animeSlug = '';
+    $isMovie = false;
+    
+    if ($animeHtml) {
+        if (preg_match('/canonical" href="https:\/\/animesalt\.top\/movies\/([^"\/]+)/', $animeHtml, $match)) {
+            $animeSlug = $match[1];
+            $isMovie = true;
+        } elseif (preg_match('/canonical" href="https:\/\/animesalt\.top\/series\/([^"\/]+)/', $animeHtml, $match)) {
+            $animeSlug = $match[1];
         }
-        
-        // Remove duplicates and filter out non-video URLs
-        $video_urls = array_unique($video_urls);
-        $filtered_urls = [];
-        
-        foreach ($video_urls as $url) {
-            // More comprehensive filtering for video URLs
-            if ((strpos($url, 'embed') !== false || 
-                strpos($url, 'player') !== false ||
-                strpos($url, '.m3u8') !== false ||
-                strpos($url, 'stream') !== false ||
-                strpos($url, 'video') !== false ||
-                strpos($url, 'watch') !== false ||
-                preg_match('/\.(mp4|mkv|avi|webm|flv)/', $url) ||
-                preg_match('/(streamtape|doodstream|mixdrop|upstream|vidoza|streamlare|filemoon|smoothpre|voe|streamhub)/', $url)) &&
-                // Exclude non-video URLs
-                strpos($url, 'oembed') === false &&
-                strpos($url, 'wp-json') === false &&
-                strpos($url, 'wp-content') === false &&
-                strpos($url, '.css') === false &&
-                strpos($url, '.js') === false &&
-                strpos($url, 'googletagmanager') === false) {
-                $filtered_urls[] = $url;
-            }
-        }
-        
-        // Only return real extracted URLs, no fallbacks
-        if (empty($filtered_urls)) {
-            return ['error' => 'No video sources found'];
-        }
-        
-        return [
-            'episode' => str_pad($episode_id, 2, '0', STR_PAD_LEFT),
-            'title' => 'Episode ' . str_pad($episode_id, 2, '0', STR_PAD_LEFT),
-            'urls' => $filtered_urls,
-            'streamUrl' => $filtered_urls[0] ?? ''
-        ];
-        
-    } catch (Exception $e) {
-        return ['error' => 'Failed to get episode'];
     }
+    
+    if (empty($animeSlug)) {
+        return ['error' => 'Anime not found'];
+    }
+    
+    $html = '';
+    
+    if ($isMovie) {
+        // For movies, get the movie page directly
+        $movieUrl = "https://animesalt.top/movies/" . $animeSlug . "/";
+        $html = makeRequest($movieUrl);
+    } else {
+        // For series, try episode URL with season format
+        $episodeUrl = "https://animesalt.top/episode/" . $animeSlug . "-1x" . $episode_id . "/";
+        $html = makeRequest($episodeUrl);
+    }
+    
+    if (!$html) {
+        return ['error' => 'Episode not found'];
+    }
+    
+    $video_urls = [];
+    
+    // Look for iframe video sources
+    $patterns = [
+        '/src="(https:\/\/[^"]*(?:zephyrflick|awstream|embed|player)[^"]*)"/',
+        '/data-src="(https:\/\/[^"]*(?:zephyrflick|awstream|embed|player)[^"]*)"/',
+        '/src="([^"]*\.m3u8[^"]*)"/',
+        '/"(https:\/\/[^"]*(?:streamtape|doodstream|mixdrop)[^"]*)"/'
+    ];
+    
+    foreach ($patterns as $pattern) {
+        preg_match_all($pattern, $html, $matches);
+        foreach ($matches[1] as $url) {
+            if (strpos($url, 'http') === 0) {
+                $video_urls[] = $url;
+            }
+        }
+    }
+    
+    return [
+        'episode' => str_pad($episode_id, 2, '0', STR_PAD_LEFT),
+        'title' => $isMovie ? 'Movie' : 'Episode ' . str_pad($episode_id, 2, '0', STR_PAD_LEFT),
+        'urls' => array_unique($video_urls),
+        'streamUrl' => $video_urls[0] ?? ''
+    ];
 }
 ?>
