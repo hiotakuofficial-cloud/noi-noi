@@ -64,7 +64,7 @@ $enhancedSystemPrompt .= "\n\nYou have access to Hiotaku's anime search. When us
 $isAnimeQuery = preg_match('/\b(anime|naruto|demon slayer|attack on titan|one piece|dragon ball|available|hiotaku|watch|stream|episode|mil jayega|hai kya)\b/i', $message);
 
 $searchResults = null;
-if ($isAnimeQuery) {
+if ($isAnimeQuery) { // Re-enabled with shorter timeout
     $animeQuery = extractAnimeQuery($message);
     if ($animeQuery) {
         $searchResults = searchAnime($animeQuery);
@@ -92,33 +92,104 @@ function extractAnimeQuery($message) {
     return null;
 }
 
-// Function to search anime
-function searchAnime($query) {
+// Function to get poster URL from details API
+function getPosterUrl($animeId, $source) {
     try {
-        $searchUrl = 'http://localhost:8000/hiotaku/api/v1/chat/b/tool/search_tool.php';
-        
-        $postData = json_encode(['query' => $query, 'source' => 'all']);
+        $url = 'https://anime-check-api.hiotaku-official.workers.dev/';
+        $type = $source === 'hindi' ? 'hindi' : 'english';
+        $data = [
+            'password' => 'nehubaby7890',
+            'action' => 'details',
+            'id' => $animeId,
+            'type' => $type
+        ];
         
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $searchUrl);
+        curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'key: hisu-hitaku'
-        ]);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 10); // Back to 10 seconds
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
         
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         
         if ($response && $httpCode === 200) {
-            return json_decode($response, true);
+            $data = json_decode($response, true);
+            if (isset($data['data']['thumbnail'])) {
+                return $data['data']['thumbnail'];
+            }
         }
         
-        // Return timeout response for AI to handle
+        return null;
+    } catch (Exception $e) {
+        return null;
+    }
+}
+
+// Function to search anime directly
+function searchAnime($query) {
+    try {
+        // Call Cloudflare Workers API directly
+        $url = 'https://anime-check-api.hiotaku-official.workers.dev/';
+        $data = [
+            'password' => 'nehubaby7890',
+            'action' => 'check',
+            'query' => $query
+        ];
+        
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        
+        if ($response && $httpCode === 200) {
+            $responseData = json_decode($response, true);
+            
+            // Convert to expected format
+            $results = [];
+            if (isset($responseData['hindi']['available']) && $responseData['hindi']['available']) {
+                foreach ($responseData['hindi']['results'] as $item) {
+                    $item['source'] = 'hindi';
+                    $results[] = $item;
+                }
+            }
+            if (isset($responseData['english']['available']) && $responseData['english']['available']) {
+                foreach ($responseData['english']['results'] as $item) {
+                    $item['source'] = 'main';
+                    $results[] = $item;
+                }
+            }
+            
+            // Simple anime cards with basic info
+            $animeCards = [];
+            foreach (array_slice($results, 0, 5) as $item) {
+                $animeCards[] = [
+                    'id' => $item['id'],
+                    'title' => $item['title'],
+                    'type' => $item['type'],
+                    'source' => $item['source']
+                ];
+            }
+            
+            return [
+                'success' => true,
+                'query' => $query,
+                'total' => count($results),
+                'data' => $results,
+                'anime_cards' => $animeCards
+            ];
+        }
+        
         return ['timeout' => true, 'query' => $query];
         
     } catch (Exception $e) {
@@ -137,6 +208,7 @@ if ($searchResults && isset($searchResults['timeout'])) {
         if ($searchResults['total'] > 3) {
             $enhancedSystemPrompt .= " and " . ($searchResults['total'] - 3) . " more.";
         }
+        $enhancedSystemPrompt .= " Respond enthusiastically that these anime are available on Hiotaku platform!";
     } else {
         $enhancedSystemPrompt .= "Not available on Hiotaku.";
     }
@@ -171,7 +243,7 @@ curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
 curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+curl_setopt($ch, CURLOPT_TIMEOUT, 20); // Reduced from 30
 
 $response = curl_exec($ch);
 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -192,9 +264,10 @@ if (!$result || !isset($result['choices'][0]['message']['content'])) {
 echo json_encode([
     'success' => true,
     'response' => trim($result['choices'][0]['message']['content']),
+    'anime_cards' => $searchResults['anime_cards'] ?? [],
     'model' => $MODEL,
     'auth' => 'verified',
     'user_prompt_length' => strlen($userPrompt),
     'user_memory_length' => strlen($userMemory)
-]);
+], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 ?>

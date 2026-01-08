@@ -46,79 +46,49 @@ if (strlen($query) < 2) {
     exit;
 }
 
-// Search functions using included files
-function searchMainAPI($query) {
+// Search functions using Cloudflare Workers API
+function searchAnimeAPI($query) {
     try {
-        // Load environment and set token
-        loadEnv(__DIR__ . '/../../../../../.env');
-        $token = $_ENV['BABEER'] ?? '';
-        
-        // Backup original GET
-        $originalGet = $_GET;
-        
-        // Set search parameters
-        $_GET = [
-            'action' => 'search',
-            'q' => $query,
-            'token' => $token
+        $url = 'https://anime-check-api.hiotaku-official.workers.dev/';
+        $data = [
+            'password' => 'nehubaby7890',
+            'action' => 'check',
+            'query' => $query
         ];
         
-        ob_start();
-        include __DIR__ . '/../../../../../../api.php';
-        $response = ob_get_clean();
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
         
-        // Restore original GET
-        $_GET = $originalGet;
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
         
-        $data = json_decode($response, true);
-        if ($data && isset($data['results'])) {
-            return $data['results'];
-        }
-        if ($data && isset($data['data'])) {
-            return $data['data'];
-        }
-        
-        return [];
-    } catch (Exception $e) {
-        return [];
-    }
-}
-
-function searchHindiAPI($query) {
-    try {
-        // Load environment and set token
-        loadEnv(__DIR__ . '/../../../../../.env');
-        $token = $_ENV['BABEER'] ?? '';
-        
-        // Backup original GET
-        $originalGet = $_GET;
-        
-        // Set search parameters
-        $_GET = [
-            'action' => 'search',
-            'q' => $query,
-            'token' => $token
-        ];
-        
-        ob_start();
-        include __DIR__ . '/../../../../../../hindiv2.php';
-        $response = ob_get_clean();
-        
-        // Restore original GET
-        $_GET = $originalGet;
-        
-        $data = json_decode($response, true);
-        
-        // Handle different response formats
-        if (is_array($data)) {
-            // Hindi API returns direct array
-            return $data;
-        }
-        if ($data && isset($data['results'])) {
-            return $data['results'];
-        }
-        if ($data && isset($data['data'])) {
-            return $data['data'];
+        if ($httpCode == 200) {
+            $responseData = json_decode($response, true);
+            $results = [];
+            
+            // Add Hindi results
+            if (isset($responseData['hindi']['available']) && $responseData['hindi']['available']) {
+                foreach ($responseData['hindi']['results'] as $item) {
+                    $item['source'] = 'hindi';
+                    $results[] = $item;
+                }
+            }
+            
+            // Add English results
+            if (isset($responseData['english']['available']) && $responseData['english']['available']) {
+                foreach ($responseData['english']['results'] as $item) {
+                    $item['source'] = 'main';
+                    $results[] = $item;
+                }
+            }
+            
+            return $results;
         }
         
         return [];
@@ -132,28 +102,26 @@ $results = [];
 
 switch ($source) {
     case 'main':
-        $results = searchMainAPI($query);
+        $allResults = searchAnimeAPI($query);
+        // Filter only main source results
+        $results = array_filter($allResults, function($item) {
+            return ($item['source'] ?? '') === 'main';
+        });
+        $results = array_values($results); // Re-index array
         break;
         
     case 'hindi':
-        $results = searchHindiAPI($query);
+        $allResults = searchAnimeAPI($query);
+        // Filter only hindi source results
+        $results = array_filter($allResults, function($item) {
+            return ($item['source'] ?? '') === 'hindi';
+        });
+        $results = array_values($results); // Re-index array
         break;
         
     case 'all':
     default:
-        $mainResults = searchMainAPI($query);
-        $hindiResults = searchHindiAPI($query);
-        
-        // Combine results with source tags
-        foreach ($mainResults as $item) {
-            $item['source'] = 'main';
-            $results[] = $item;
-        }
-        
-        foreach ($hindiResults as $item) {
-            $item['source'] = 'hindi';
-            $results[] = $item;
-        }
+        $results = searchAnimeAPI($query); // This returns both sources
         break;
 }
 
