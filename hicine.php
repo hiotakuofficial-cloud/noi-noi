@@ -57,7 +57,7 @@ switch ($action) {
             echo json_encode(['error' => 'Query parameter required'], JSON_PRETTY_PRINT);
             exit;
         }
-        $data = fetchHicine("/api/search/" . urlencode($query));
+        $data = fetchHicine("/api/search/" . rawurlencode($query));
         break;
         
     case 'recent':
