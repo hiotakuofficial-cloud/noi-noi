@@ -56,19 +56,20 @@ function searchAnimeAPI($query) {
             'query' => $query
         ];
         
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        $opts = [
+            'http' => [
+                'method' => 'POST',
+                'header' => 'Content-Type: application/json',
+                'content' => json_encode($data),
+                'timeout' => 10,
+                'ignore_errors' => true
+            ]
+        ];
         
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
+        $context = stream_context_create($opts);
+        $response = @file_get_contents($url, false, $context);
         
-        if ($httpCode == 200) {
+        if ($response) {
             $responseData = json_decode($response, true);
             $results = [];
             

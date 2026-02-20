@@ -140,19 +140,20 @@ function searchAnime($query) {
             'query' => $query
         ];
         
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        $opts = [
+            'http' => [
+                'method' => 'POST',
+                'header' => 'Content-Type: application/json',
+                'content' => json_encode($data),
+                'timeout' => 10,
+                'ignore_errors' => true
+            ]
+        ];
         
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
+        $context = stream_context_create($opts);
+        $response = @file_get_contents($url, false, $context);
         
-        if ($response && $httpCode === 200) {
+        if ($response) {
             $responseData = json_decode($response, true);
             
             // Convert to expected format
@@ -236,18 +237,24 @@ $headers = [
     'User-Agent: BlackboxCLI/1.0'
 ];
 
-// Make API request
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, $API_URL);
-curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_TIMEOUT, 20); // Reduced from 30
+// Make API request using file_get_contents
+$opts = [
+    'http' => [
+        'method' => 'POST',
+        'header' => implode("\r\n", $headers),
+        'content' => json_encode($data),
+        'timeout' => 20,
+        'ignore_errors' => true
+    ]
+];
 
-$response = curl_exec($ch);
-$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
+$context = stream_context_create($opts);
+$response = @file_get_contents($API_URL, false, $context);
+$httpCode = 200; // Assume success if response received
+
+if ($response === false) {
+    $httpCode = 500;
+}
 
 if ($response === false || $httpCode !== 200) {
     echo json_encode(['error' => 'API request failed']);
