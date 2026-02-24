@@ -6,18 +6,12 @@ date_default_timezone_set('Asia/Kolkata');
 $launchDate = strtotime('2026-02-17 00:00:00');
 $currentDate = time();
 
-// Check if current date is past launch date
-if ($currentDate >= $launchDate) {
-    header('Location: https://hiotaku.kesug.com');
-    exit();
-}
-
-// Calculate time remaining
-$timeLeft = $launchDate - $currentDate;
-$days = floor($timeLeft / (60 * 60 * 24));
-$hours = floor(($timeLeft % (60 * 60 * 24)) / (60 * 60));
-$minutes = floor(($timeLeft % (60 * 60)) / 60);
-$seconds = $timeLeft % 60;
+// Calculate days since launch
+$timeSinceLaunch = $currentDate - $launchDate;
+$daysSinceLaunch = floor($timeSinceLaunch / (60 * 60 * 24));
+$hoursSinceLaunch = floor(($timeSinceLaunch % (60 * 60 * 24)) / (60 * 60));
+$minutesSinceLaunch = floor(($timeSinceLaunch % (60 * 60)) / 60);
+$secondsSinceLaunch = $timeSinceLaunch % 60;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -25,19 +19,19 @@ $seconds = $timeLeft % 60;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hiotaku - Free Anime Streaming Platform India | Watch Anime Online Free</title>
-    <meta name="description" content="Hiotaku is India's free anime streaming platform launching February 17, 2026. Watch anime online free with HD quality, curated content, and ad-free episodes.">
-    <meta name="keywords" content="watch anime online free, demon slayer season 4, one piece latest episodes, attack on titan final season, jujutsu kaisen season 3, chainsaw man anime, spy x family, mob psycho 100, tokyo revengers, my hero academia, naruto shippuden, dragon ball super, anime hindi dub, anime english sub, latest anime 2026, trending anime, popular anime series, anime streaming site, free anime website, hd anime episodes">
+    <meta name="description" content="Hiotaku is India's free anime streaming platform. Watch anime online free with HD quality, curated content, and ad-free episodes. Download the app now!">
+    <meta name="keywords" content="watch anime online free, demon slayer season 4, one piece latest episodes, attack on titan final season, jujutsu kaisen season 3, chainsaw man anime, spy x family, mob psycho 100, tokyo revengers, my hero academia, naruto shippuden, dragon ball super, anime hindi dub, anime english sub, latest anime 2026, trending anime, popular anime series, anime streaming site, free anime website, hd anime episodes, hiotaku app download">
     <meta name="robots" content="index, follow">
     <meta name="author" content="NEHU SINGH">
     <meta property="og:title" content="Hiotaku - Free Anime Streaming Platform India">
-    <meta property="og:description" content="Experience anime the right way with Hiotaku - India's free anime streaming platform launching February 2026. Watch anime online free with HD quality.">
+    <meta property="og:description" content="Experience anime the right way with Hiotaku - India's free anime streaming platform. Watch anime online free with HD quality. Download now!">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://hiotaku.kesug.com">
-    <meta property="og:image" content="assets/image/logo.png">
+    <meta property="og:url" content="https://www.hiotaku.in">
+    <meta property="og:image" content="https://www.hiotaku.in/waiting/assets/image/logo.png">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Hiotaku - Free Anime Streaming Platform India">
-    <meta name="twitter:description" content="Watch anime online free with Hiotaku - launching February 2026 with curated content and HD quality.">
-    <link rel="canonical" href="https://hiotaku.kesug.com">
+    <meta name="twitter:description" content="Watch anime online free with Hiotaku - India's premier anime streaming platform. Download the app now!">
+    <link rel="canonical" href="https://www.hiotaku.in">
     <link rel="sitemap" type="application/xml" href="/sitemap.xml">
     <link rel="icon" type="image/png" href="assets/favicon/favicon.png">
     <script src="https://pl28446895.effectivegatecpm.com/65/fe/9b/65fe9bdd10245701eb618180da1837e5.js"></script>
@@ -305,26 +299,26 @@ $seconds = $timeLeft % 60;
         <div class="countdown-container">
             <div class="countdown">
                 <div class="time-unit">
-                    <span class="time-number" id="days"><?php echo sprintf('%02d', $days); ?></span>
+                    <span class="time-number" id="days"><?php echo sprintf('%02d', $daysSinceLaunch); ?></span>
                     <span class="time-label">Days</span>
                 </div>
                 <div class="time-unit">
-                    <span class="time-number" id="hours"><?php echo sprintf('%02d', $hours); ?></span>
+                    <span class="time-number" id="hours"><?php echo sprintf('%02d', $hoursSinceLaunch); ?></span>
                     <span class="time-label">Hours</span>
                 </div>
                 <div class="time-unit">
-                    <span class="time-number" id="minutes"><?php echo sprintf('%02d', $minutes); ?></span>
+                    <span class="time-number" id="minutes"><?php echo sprintf('%02d', $minutesSinceLaunch); ?></span>
                     <span class="time-label">Minutes</span>
                 </div>
                 <div class="time-unit">
-                    <span class="time-number" id="seconds"><?php echo sprintf('%02d', $seconds); ?></span>
+                    <span class="time-number" id="seconds"><?php echo sprintf('%02d', $secondsSinceLaunch); ?></span>
                     <span class="time-label">Seconds</span>
                 </div>
             </div>
-            <p class="countdown-note">When the countdown ends, Hiotaku will be live.</p>
+            <p class="countdown-note">Hiotaku launched on 17 February 2026</p>
         </div>
         
-        <button class="cta-button disabled" id="ctaButton">Launching Soon</button>
+        <a href="/hiotaku/relised/hiotaku.apk" class="cta-button">Download Now</a>
     </div>
     
     <div class="about-section">
@@ -360,28 +354,17 @@ $seconds = $timeLeft % 60;
     </footer>
 
     <script>
-        // Live countdown update using JavaScript
+        // Live counter showing days since launch
         const launchDate = new Date('2026-02-17T00:00:00+05:30');
-        const ctaButton = document.getElementById('ctaButton');
         
-        function updateCountdown() {
+        function updateCounter() {
             const now = new Date();
-            const timeLeft = launchDate - now;
+            const timeSinceLaunch = now - launchDate;
             
-            if (timeLeft <= 0) {
-                // Timer finished - show Download Now button
-                ctaButton.textContent = 'Download Now';
-                ctaButton.classList.remove('disabled');
-                ctaButton.onclick = function() {
-                    window.location.href = '/hiotaku/relised/hiotaku.apk';
-                };
-                return;
-            }
-            
-            const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+            const days = Math.floor(timeSinceLaunch / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeSinceLaunch % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeSinceLaunch % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeSinceLaunch % (1000 * 60)) / 1000);
             
             document.getElementById('days').textContent = days.toString().padStart(2, '0');
             document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
@@ -390,8 +373,8 @@ $seconds = $timeLeft % 60;
         }
         
         // Update immediately and then every second
-        updateCountdown();
-        setInterval(updateCountdown, 1000);
+        updateCounter();
+        setInterval(updateCounter, 1000);
     </script>
 </body>
 </html>
