@@ -86,9 +86,13 @@ try {
             'details' => $result['details'] ?? []
         ]);
     } else {
+        // Log detailed error
+        error_log("Notification send failed: " . json_encode($result));
+        
         echo json_encode([
             'success' => false,
-            'error' => $result['error'] ?? 'Unknown error'
+            'error' => $result['error'] ?? 'Unknown error',
+            'debug' => $result // Add full result for debugging
         ]);
     }
     
