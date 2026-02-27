@@ -174,12 +174,14 @@ class NotificationSender {
             return $this->accessToken;
         }
         
-        // Load service account
-        if (!file_exists(FIREBASE_SERVICE_ACCOUNT_PATH)) {
-            throw new Exception('Firebase service account file not found');
+        // Load service account from env or file
+        if (FIREBASE_SERVICE_ACCOUNT_JSON) {
+            $serviceAccount = json_decode(FIREBASE_SERVICE_ACCOUNT_JSON, true);
+        } else if (FIREBASE_SERVICE_ACCOUNT_PATH && file_exists(FIREBASE_SERVICE_ACCOUNT_PATH)) {
+            $serviceAccount = json_decode(file_get_contents(FIREBASE_SERVICE_ACCOUNT_PATH), true);
+        } else {
+            throw new Exception('Firebase service account not configured');
         }
-        
-        $serviceAccount = json_decode(file_get_contents(FIREBASE_SERVICE_ACCOUNT_PATH), true);
         
         if (!$serviceAccount) {
             throw new Exception('Invalid service account file');

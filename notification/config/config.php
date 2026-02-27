@@ -3,13 +3,42 @@
  * Configuration for Hiotaku Notification Center
  */
 
+// Load .env file manually
+if (file_exists(__DIR__ . '/../../.env')) {
+    $lines = file(__DIR__ . '/../../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        if (strpos(trim($line), '#') === 0) continue;
+        if (strpos($line, '=') !== false) {
+            list($key, $value) = explode('=', $line, 2);
+            $key = trim($key);
+            $value = trim($value);
+            // Remove quotes
+            $value = trim($value, "'\"");
+            if (!isset($_ENV[$key])) {
+                $_ENV[$key] = $value;
+                putenv("$key=$value");
+            }
+        }
+    }
+}
+
 // Supabase Configuration
 define('SUPABASE_URL', 'https://brwzqawoncblbxqoqyua.supabase.co');
 define('SUPABASE_ANON_KEY', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyd3pxYXdvbmNibGJ4cW9xeXVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIzMzM1MjIsImV4cCI6MjA3NzkwOTUyMn0.-HNrfcz5K2N6f_Q8tQsWtsUJCV_SW13Hcj565qU5eCA');
 
 // Firebase Configuration
 define('FIREBASE_PROJECT_ID', 'hiotaku-flutter');
-define('FIREBASE_SERVICE_ACCOUNT_PATH', __DIR__ . '/service-account.json');
+
+// Get service account from env or file
+$envServiceAccount = getenv('FIREBASE_SERVICE_ACCOUNT');
+if ($envServiceAccount) {
+    define('FIREBASE_SERVICE_ACCOUNT_JSON', $envServiceAccount);
+    define('FIREBASE_SERVICE_ACCOUNT_PATH', null);
+} else {
+    define('FIREBASE_SERVICE_ACCOUNT_PATH', __DIR__ . '/service-account.json');
+    define('FIREBASE_SERVICE_ACCOUNT_JSON', null);
+}
+
 define('FCM_ENDPOINT', 'https://fcm.googleapis.com/v1/projects/' . FIREBASE_PROJECT_ID . '/messages:send');
 define('OAUTH_ENDPOINT', 'https://oauth2.googleapis.com/token');
 define('FIREBASE_SCOPE', 'https://www.googleapis.com/auth/firebase.messaging');
