@@ -13,52 +13,442 @@
     <meta property="og:url" content="https://hiotaku.kesug.com/contact.html">
     <link rel="canonical" href="https://hiotaku.kesug.com/contact.html">
     <link rel="icon" type="image/png" href="assets/favicon/favicon.png">
-    <script src="https://pl28446895.effectivegatecpm.com/65/fe/9b/65fe9bdd10245701eb618180da1837e5.js"></script>
-    <script>
-      atOptions = {
-        'key' : '780ebea0e28f410fed83762813132e04',
-        'format' : 'iframe',
-        'height' : 50,
-        'width' : 320,
-        'params' : {}
-      };
-    </script>
-    <script src="https://www.highperformanceformat.com/780ebea0e28f410fed83762813132e04/invoke.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 40px; background: #121212; color: #fff; }
-        h1 { color: #ff8c00; }
-        .back-link { color: #ff8c00; text-decoration: none; }
-        .back-link:hover { text-decoration: underline; }
-        .contact-info { background: rgba(255,140,0,0.1); padding: 20px; border-radius: 10px; margin: 20px 0; }
+        :root {
+            --ink: #080810;
+            --paper: #f0ebe0;
+            --red: #d91a2a;
+            --gold: #c9a84c;
+            --dim: rgba(240,235,224,0.45);
+            --border: rgba(240,235,224,0.07);
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--ink);
+            color: var(--paper);
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 300;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            opacity: 0.5;
+        }
+
+        /* NAV */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            height: 60px; padding: 0 6vw;
+            display: flex; align-items: center; justify-content: space-between;
+            background: rgba(8,8,16,0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+        .nav-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.3rem; font-weight: 700;
+            color: var(--paper); text-decoration: none;
+        }
+        .nav-logo b { color: var(--red); }
+        .back-link {
+            font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase;
+            color: var(--dim); text-decoration: none;
+            display: flex; align-items: center; gap: 8px;
+            transition: color 0.25s;
+        }
+        .back-link:hover { color: var(--paper); }
+        .back-link::before {
+            content: ''; display: block; width: 20px; height: 1px;
+            background: currentColor; transition: width 0.3s;
+        }
+        .back-link:hover::before { width: 32px; }
+
+        /* HERO */
+        .hero {
+            min-height: 46vh;
+            padding: 120px 6vw 72px;
+            position: relative; overflow: hidden;
+            display: flex; align-items: flex-end;
+            border-bottom: 1px solid var(--border);
+        }
+        .hero-glow {
+            position: absolute; inset: 0; pointer-events: none;
+            background:
+                radial-gradient(ellipse 50% 80% at 90% 40%, rgba(217,26,42,0.08) 0%, transparent 65%),
+                radial-gradient(ellipse 30% 50% at 5% 90%, rgba(201,168,76,0.04) 0%, transparent 60%);
+        }
+        .hero-lines {
+            position: absolute; inset: 0; pointer-events: none;
+            background-image: repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(240,235,224,0.022) 80px);
+        }
+        .hero-word {
+            position: absolute; right: 5vw; bottom: -20px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(100px, 16vw, 200px); font-weight: 700;
+            color: rgba(217,26,42,0.04);
+            pointer-events: none; user-select: none; line-height: 1;
+            letter-spacing: -0.02em;
+        }
+        .hero-content { position: relative; z-index: 2; max-width: 560px; }
+        .page-label {
+            display: inline-flex; align-items: center; gap: 10px;
+            font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase;
+            color: var(--red); margin-bottom: 24px;
+            opacity: 0; animation: up 0.9s 0.1s ease forwards;
+        }
+        .page-label::before { content: ''; width: 28px; height: 1px; background: var(--red); }
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(3rem, 6vw, 5.2rem);
+            font-weight: 300; line-height: 1.05;
+            margin-bottom: 24px;
+            opacity: 0; animation: up 0.9s 0.25s ease forwards;
+        }
+        h1 em { font-style: italic; color: var(--red); }
+        .hero-desc {
+            font-size: 0.97rem; line-height: 1.85; color: var(--dim);
+            opacity: 0; animation: up 0.9s 0.4s ease forwards;
+        }
+
+        /* MAIN */
+        .main {
+            max-width: 1100px; margin: 0 auto;
+            padding: 100px 6vw;
+            position: relative; z-index: 1;
+            display: flex; flex-direction: column; gap: 80px;
+        }
+
+        /* CONTACT GRID */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2px;
+            border: 1px solid var(--border);
+        }
+
+        .contact-card {
+            padding: 44px 36px;
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            position: relative; overflow: hidden;
+            transition: background 0.4s;
+        }
+        .contact-card:nth-child(2n) { border-right: none; }
+        .contact-card:nth-child(n+3) { border-bottom: none; }
+        .contact-card:hover { background: rgba(217,26,42,0.03); }
+        .contact-card::after {
+            content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+            height: 1.5px; background: var(--red);
+            transform: scaleX(0); transform-origin: left;
+            transition: transform 0.5s ease;
+        }
+        .contact-card:hover::after { transform: scaleX(1); }
+
+        .card-num {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.7rem; letter-spacing: 0.1em;
+            color: rgba(217,26,42,0.35); margin-bottom: 24px; display: block;
+        }
+        .card-line {
+            width: 22px; height: 1.5px; background: var(--red); opacity: 0.4;
+            margin-bottom: 18px; transition: width 0.4s, opacity 0.4s;
+        }
+        .contact-card:hover .card-line { width: 44px; opacity: 1; }
+
+        .contact-card h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.3rem; font-weight: 600;
+            margin-bottom: 12px; line-height: 1.2;
+        }
+        .contact-card p {
+            font-size: 0.84rem; line-height: 1.8; color: var(--dim);
+        }
+        .card-value {
+            display: inline-block; margin-top: 16px;
+            font-size: 0.75rem; letter-spacing: 0.06em;
+            color: var(--paper); font-weight: 500;
+        }
+        .card-badge {
+            display: inline-block; margin-top: 16px;
+            font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase;
+            color: var(--gold); border: 1px solid rgba(201,168,76,0.2);
+            padding: 4px 10px;
+        }
+
+        /* HELP TOPICS */
+        .help-section {
+            display: grid; grid-template-columns: 1fr 1.6fr; gap: 80px; align-items: start;
+        }
+        .s-label {
+            font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase;
+            color: var(--red); margin-bottom: 20px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .s-label::before { content: ''; width: 24px; height: 1px; background: var(--red); }
+        h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.8rem, 3vw, 2.8rem);
+            font-weight: 300; line-height: 1.1;
+        }
+        h2 em { font-style: italic; color: var(--red); }
+
+        .help-list { display: flex; flex-direction: column; }
+        .help-item {
+            display: flex; align-items: center; gap: 20px;
+            padding: 18px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.88rem; color: var(--dim);
+            transition: color 0.3s;
+            cursor: default;
+        }
+        .help-item:first-child { border-top: 1px solid var(--border); }
+        .help-item:hover { color: var(--paper); }
+        .help-num {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.7rem; letter-spacing: 0.1em;
+            color: rgba(217,26,42,0.4); flex-shrink: 0; width: 24px;
+        }
+        .help-arrow {
+            margin-left: auto; color: var(--red);
+            font-size: 0.7rem; opacity: 0;
+            transform: translateX(-6px);
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        .help-item:hover .help-arrow { opacity: 1; transform: translateX(0); }
+
+        /* IN-APP BANNER */
+        .inapp-banner {
+            padding: 60px 48px;
+            border: 1px solid var(--border);
+            background: rgba(217,26,42,0.03);
+            position: relative; overflow: hidden;
+            display: grid; grid-template-columns: 1fr auto;
+            gap: 40px; align-items: center;
+        }
+        .inapp-banner::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0;
+            height: 1.5px; background: linear-gradient(90deg, var(--red), transparent 60%);
+        }
+        .inapp-bg {
+            position: absolute; right: -20px; top: 50%; transform: translateY(-50%);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 160px; font-weight: 700;
+            color: rgba(217,26,42,0.04); line-height: 1;
+            pointer-events: none; user-select: none;
+        }
+        .inapp-label {
+            font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase;
+            color: var(--gold); margin-bottom: 16px;
+        }
+        .inapp-banner h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.6rem, 2.5vw, 2.4rem);
+            font-weight: 300; line-height: 1.15; margin-bottom: 12px;
+        }
+        .inapp-banner h3 em { font-style: italic; color: var(--red); }
+        .inapp-banner p { font-size: 0.87rem; color: var(--dim); line-height: 1.8; max-width: 480px; }
+
+        .btn {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase;
+            text-decoration: none; display: inline-block;
+            padding: 14px 32px; white-space: nowrap;
+            transition: transform 0.3s, box-shadow 0.3s;
+            flex-shrink: 0; align-self: center;
+        }
+        .btn-fill {
+            background: var(--red); color: #fff;
+            position: relative; overflow: hidden;
+        }
+        .btn-fill::after {
+            content: ''; position: absolute; inset: 0;
+            background: rgba(255,255,255,0.12);
+            transform: translateX(-101%); transition: transform 0.35s;
+        }
+        .btn-fill:hover::after { transform: translateX(0); }
+        .btn-fill:hover { transform: translateY(-2px); box-shadow: 0 14px 40px rgba(217,26,42,0.35); }
+
+        /* FOOTER */
+        footer {
+            padding: 36px 6vw; border-top: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 14px; position: relative; z-index: 1;
+        }
+        .f-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 700; }
+        .f-logo b { color: var(--red); }
+        .f-copy { font-size: 0.7rem; color: rgba(240,235,224,0.22); }
+        .f-links { display: flex; gap: 20px; }
+        .f-links a { font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(240,235,224,0.22); text-decoration: none; transition: color 0.3s; }
+        .f-links a:hover { color: var(--red); }
+
+        /* REVEAL */
+        .r { opacity: 0; transform: translateY(28px); transition: opacity 0.75s ease, transform 0.75s ease; }
+        .r.in { opacity: 1; transform: translateY(0); }
+        .d1{transition-delay:0.08s} .d2{transition-delay:0.16s}
+        .d3{transition-delay:0.24s} .d4{transition-delay:0.32s}
+
+        @keyframes up { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+
+        /* RESPONSIVE */
+        @media (max-width: 900px) {
+            .help-section { grid-template-columns: 1fr; gap: 40px; }
+            .inapp-banner { grid-template-columns: 1fr; }
+            .inapp-banner .btn { align-self: flex-start; }
+        }
+        @media (max-width: 700px) {
+            .contact-grid { grid-template-columns: 1fr; }
+            .contact-card { border-right: none; border-bottom: 1px solid var(--border); }
+            .contact-card:last-child { border-bottom: none; }
+        }
+        @media (max-width: 600px) {
+            nav { padding: 0 5vw; }
+            .hero { padding: 100px 5vw 56px; min-height: 40vh; }
+            .hero-word { display: none; }
+            .main { padding: 60px 5vw; gap: 60px; }
+            .inapp-banner { padding: 40px 24px; }
+            footer { flex-direction: column; text-align: center; padding: 28px 5vw; }
+            .f-links { justify-content: center; }
+        }
     </style>
 </head>
 <body>
-    <a href="/" class="back-link">← Back to Home</a>
-    <h1>Contact Us</h1>
-    
-    <div class="contact-info">
-        <h2>Get in Touch</h2>
-        <p>We're here to help with any questions about Hiotaku.</p>
-        
-        <p><strong>Primary Support:</strong><br>
-        Use the in-app support system for fastest response</p>
-        
-        <p><strong>Developer:</strong> NEHU SINGH</p>
-        
-        <p><strong>Response Time:</strong><br>
-        We aim to respond within 24-48 hours</p>
-        
-        <p><strong>Support Hours:</strong><br>
-        Available 24/7 through in-app system</p>
+
+    <nav>
+        <a href="/" class="nav-logo">Hio<b>taku</b></a>
+        <a href="/" class="back-link">Back to Home</a>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-glow"></div>
+        <div class="hero-lines"></div>
+        <div class="hero-word">Contact</div>
+        <div class="hero-content">
+            <p class="page-label">Get in Touch</p>
+            <h1>We're here<br>to <em>help.</em></h1>
+            <p class="hero-desc">Questions about the app, technical issues, feedback, or anything else — the Hiotaku team is available and ready to respond.</p>
+        </div>
+    </section>
+
+    <div class="main">
+
+        <!-- CONTACT INFO CARDS -->
+        <div class="contact-grid r">
+            <div class="contact-card">
+                <span class="card-num">01</span>
+                <div class="card-line"></div>
+                <h3>Primary Support</h3>
+                <p>The fastest way to reach us. Use the built-in support system inside the Hiotaku app for direct, prioritised assistance.</p>
+                <span class="card-badge">Fastest Response</span>
+            </div>
+            <div class="contact-card">
+                <span class="card-num">02</span>
+                <div class="card-line"></div>
+                <h3>Developer</h3>
+                <p>Hiotaku is independently built and maintained by a single developer who reads and responds to every message personally.</p>
+                <span class="card-value">Nehu Singh</span>
+            </div>
+            <div class="contact-card">
+                <span class="card-num">03</span>
+                <div class="card-line"></div>
+                <h3>Response Time</h3>
+                <p>We aim to respond to all queries within 24 to 48 hours. Complex technical issues may take slightly longer to investigate.</p>
+                <span class="card-badge">24 – 48 Hours</span>
+            </div>
+            <div class="contact-card">
+                <span class="card-num">04</span>
+                <div class="card-line"></div>
+                <h3>Support Hours</h3>
+                <p>The in-app support system is available around the clock. You can submit a request at any time and we will get back to you.</p>
+                <span class="card-badge">24 / 7</span>
+            </div>
+        </div>
+
+        <!-- HELP TOPICS -->
+        <div class="help-section r">
+            <div>
+                <p class="s-label">What We Help With</p>
+                <h2>Common<br><em>topics.</em></h2>
+            </div>
+            <div class="help-list">
+                <div class="help-item">
+                    <span class="help-num">01</span>
+                    Account issues and login problems
+                    <span class="help-arrow">›</span>
+                </div>
+                <div class="help-item">
+                    <span class="help-num">02</span>
+                    Streaming and technical difficulties
+                    <span class="help-arrow">›</span>
+                </div>
+                <div class="help-item">
+                    <span class="help-num">03</span>
+                    Content requests and suggestions
+                    <span class="help-arrow">›</span>
+                </div>
+                <div class="help-item">
+                    <span class="help-num">04</span>
+                    Privacy and security concerns
+                    <span class="help-arrow">›</span>
+                </div>
+                <div class="help-item">
+                    <span class="help-num">05</span>
+                    General app feedback
+                    <span class="help-arrow">›</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- IN-APP BANNER -->
+        <div class="inapp-banner r">
+            <div class="inapp-bg">24/7</div>
+            <div style="position:relative;z-index:2;">
+                <p class="inapp-label">Recommended</p>
+                <h3>Use the<br>in-app <em>support system.</em></h3>
+                <p>For the quickest and most direct path to a resolution, the support feature inside Hiotaku routes your request straight to us — no email, no wait.</p>
+            </div>
+            <a href="/" class="btn btn-fill" style="position:relative;z-index:2;">Open the App</a>
+        </div>
+
     </div>
-    
-    <h2>What We Can Help With</h2>
-    <ul>
-        <li>Account issues and login problems</li>
-        <li>Streaming and technical difficulties</li>
-        <li>Content requests and suggestions</li>
-        <li>Privacy and security concerns</li>
-        <li>General app feedback</li>
-    </ul>
+
+    <footer>
+        <div class="f-logo">Hio<b>taku</b></div>
+        <p class="f-copy">2026 Hiotaku by Nehu Singh. Launched February 17, 2026.</p>
+        <div class="f-links">
+            <a href="/">Home</a>
+            <a href="/about.html">About</a>
+            <a href="/contact.html">Contact</a>
+        </div>
+    </footer>
+
+    <script>
+        const obs = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); obs.unobserve(e.target); } });
+        }, { threshold: 0.07 });
+        document.querySelectorAll('.r').forEach(el => obs.observe(el));
+    </script>
+    <script>
+        function openOrDownloadApp() {
+            window.location.href = "hiotaku://";
+            setTimeout(function() {
+                window.location.href = "/hiotaku/relised/hiotaku.apk";
+            }, 2000);
+        }
+    </script>
+    <div style="position:fixed;bottom:24px;right:24px;z-index:200;">
+        <button onclick="openOrDownloadApp()" style="padding:14px 28px;background:#d91a2a;color:#fff;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:600;cursor:pointer;box-shadow:0 8px 24px rgba(217,26,42,0.4);transition:all 0.3s;text-transform:uppercase;letter-spacing:0.1em;">
+            Open App
+        </button>
+    </div>
 </body>
 </html>

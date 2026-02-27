@@ -4,6 +4,8 @@
  * Handles sending notifications to users via FCM
  */
 
+require_once __DIR__ . '/../config/config.php';
+
 class NotificationSender {
     private $accessToken;
     private $tokenExpiry;
@@ -28,8 +30,12 @@ class NotificationSender {
                 ];
             }
             
-            // Store notification in database
-            $this->storeNotification($userId, $notification);
+            // Store notification in database (non-blocking)
+            try {
+                $this->storeNotification($userId, $notification);
+            } catch (Exception $e) {
+                error_log("Failed to store notification: " . $e->getMessage());
+            }
             
             // Send to each token
             $results = [];
@@ -179,6 +185,9 @@ class NotificationSender {
             throw new Exception('Invalid service account file');
         }
         
+        // Fix private key format - replace escaped newlines with actual newlines
+        $privateKey = str_replace('\\n', "\n", $serviceAccount['private_key']);
+        
         // Create JWT
         $header = ['alg' => 'RS256', 'typ' => 'JWT'];
         $now = time();
@@ -196,7 +205,7 @@ class NotificationSender {
         $signature = '';
         $data = $headerEncoded . '.' . $payloadEncoded;
         
-        openssl_sign($data, $signature, $serviceAccount['private_key'], OPENSSL_ALGO_SHA256);
+        openssl_sign($data, $signature, $privateKey, OPENSSL_ALGO_SHA256);
         $signatureEncoded = $this->base64UrlEncode($signature);
         
         $jwt = $data . '.' . $signatureEncoded;
@@ -211,7 +220,8 @@ class NotificationSender {
             'http' => [
                 'method' => 'POST',
                 'header' => 'Content-Type: application/x-www-form-urlencoded',
-                'content' => $postData
+                'content' => $postData,
+                'ignore_errors' => true
             ]
         ]);
         
@@ -224,7 +234,7 @@ class NotificationSender {
         $tokenData = json_decode($response, true);
         
         if (!isset($tokenData['access_token'])) {
-            throw new Exception('Invalid token response: ' . ($tokenData['error'] ?? 'Unknown error'));
+            throw new Exception('Invalid token response: ' . ($tokenData['error_description'] ?? $tokenData['error'] ?? 'Unknown error'));
         }
         
         $this->accessToken = $tokenData['access_token'];

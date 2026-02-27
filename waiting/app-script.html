@@ -1,0 +1,12 @@
+<!-- App Open/Download Script -->
+<script>
+function openOrDownloadApp() {
+  // Try to open app
+  window.location.href = "hiotaku://";
+  
+  // Fallback to download after 2 seconds if app doesn't open
+  setTimeout(function() {
+    window.location.href = "/hiotaku/relised/hiotaku.apk";
+  }, 2000);
+}
+</script>

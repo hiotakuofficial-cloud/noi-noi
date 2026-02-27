@@ -13,49 +13,453 @@
     <meta property="og:url" content="https://hiotaku.kesug.com/privacy.html">
     <link rel="canonical" href="https://hiotaku.kesug.com/privacy.html">
     <link rel="icon" type="image/png" href="assets/favicon/favicon.png">
-    <script src="https://pl28446895.effectivegatecpm.com/65/fe/9b/65fe9bdd10245701eb618180da1837e5.js"></script>
-    <script>
-      atOptions = {
-        'key' : '780ebea0e28f410fed83762813132e04',
-        'format' : 'iframe',
-        'height' : 50,
-        'width' : 320,
-        'params' : {}
-      };
-    </script>
-    <script src="https://www.highperformanceformat.com/780ebea0e28f410fed83762813132e04/invoke.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 40px; background: #121212; color: #fff; }
-        h1 { color: #ff8c00; }
-        h2 { color: #ff8c00; margin-top: 30px; }
-        .back-link { color: #ff8c00; text-decoration: none; }
-        .back-link:hover { text-decoration: underline; }
+        :root {
+            --ink: #080810;
+            --paper: #f0ebe0;
+            --red: #d91a2a;
+            --gold: #c9a84c;
+            --dim: rgba(240,235,224,0.45);
+            --border: rgba(240,235,224,0.07);
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--ink);
+            color: var(--paper);
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 300;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body::before {
+            content: '';
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            opacity: 0.5;
+        }
+
+        /* NAV */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            height: 60px; padding: 0 6vw;
+            display: flex; align-items: center; justify-content: space-between;
+            background: rgba(8,8,16,0.82);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+        .nav-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.3rem; font-weight: 700;
+            color: var(--paper); text-decoration: none;
+        }
+        .nav-logo b { color: var(--red); }
+        .back-link {
+            font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase;
+            color: var(--dim); text-decoration: none;
+            display: flex; align-items: center; gap: 8px;
+            transition: color 0.25s;
+        }
+        .back-link:hover { color: var(--paper); }
+        .back-link::before {
+            content: ''; display: block; width: 20px; height: 1px;
+            background: currentColor; transition: width 0.3s;
+        }
+        .back-link:hover::before { width: 32px; }
+
+        /* HERO */
+        .hero {
+            min-height: 44vh;
+            padding: 116px 6vw 64px;
+            position: relative; overflow: hidden;
+            display: flex; align-items: flex-end;
+            border-bottom: 1px solid var(--border);
+        }
+        .hero-glow {
+            position: absolute; inset: 0; pointer-events: none;
+            background: radial-gradient(ellipse 55% 70% at 85% 40%, rgba(217,26,42,0.07) 0%, transparent 65%);
+        }
+        .hero-lines {
+            position: absolute; inset: 0; pointer-events: none;
+            background-image: repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(240,235,224,0.022) 80px);
+        }
+        .hero-word {
+            position: absolute; right: 4vw; bottom: -16px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(90px, 14vw, 180px); font-weight: 700;
+            color: rgba(217,26,42,0.04);
+            pointer-events: none; user-select: none; line-height: 1;
+            letter-spacing: -0.02em;
+        }
+        .hero-content { position: relative; z-index: 2; max-width: 600px; }
+        .page-label {
+            display: inline-flex; align-items: center; gap: 10px;
+            font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase;
+            color: var(--red); margin-bottom: 24px;
+            opacity: 0; animation: up 0.9s 0.1s ease forwards;
+        }
+        .page-label::before { content: ''; width: 28px; height: 1px; background: var(--red); }
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2.8rem, 5.5vw, 5rem);
+            font-weight: 300; line-height: 1.05; margin-bottom: 22px;
+            opacity: 0; animation: up 0.9s 0.25s ease forwards;
+        }
+        h1 em { font-style: italic; color: var(--red); }
+        .hero-meta {
+            display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
+            opacity: 0; animation: up 0.9s 0.4s ease forwards;
+        }
+        .meta-item {
+            font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;
+            color: var(--dim); display: flex; align-items: center; gap: 8px;
+        }
+        .meta-item::before { content: ''; width: 4px; height: 4px; background: var(--red); border-radius: 50%; }
+
+        /* LAYOUT */
+        .page-wrap {
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            gap: 0;
+            max-width: 1100px; margin: 0 auto;
+            padding: 80px 6vw 100px;
+            position: relative; z-index: 1;
+            align-items: start;
+        }
+
+        /* SIDEBAR TOC */
+        .toc {
+            position: sticky; top: 80px;
+            padding-right: 40px;
+            border-right: 1px solid var(--border);
+        }
+        .toc-label {
+            font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase;
+            color: rgba(217,26,42,0.5); margin-bottom: 20px;
+        }
+        .toc-list { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+        .toc-list a {
+            display: block;
+            font-size: 0.75rem; letter-spacing: 0.04em;
+            color: var(--dim); text-decoration: none;
+            padding: 7px 10px;
+            border-left: 1.5px solid transparent;
+            transition: color 0.25s, border-color 0.25s, padding-left 0.25s;
+            line-height: 1.4;
+        }
+        .toc-list a:hover { color: var(--paper); border-left-color: var(--red); padding-left: 14px; }
+        .toc-list a.active { color: var(--paper); border-left-color: var(--red); }
+
+        /* CONTENT */
+        .policy-content {
+            padding-left: 60px;
+            display: flex; flex-direction: column; gap: 0;
+        }
+
+        .policy-section {
+            padding: 56px 0;
+            border-bottom: 1px solid var(--border);
+            opacity: 0; transform: translateY(24px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+        .policy-section:first-child { padding-top: 0; }
+        .policy-section:last-child { border-bottom: none; }
+        .policy-section.in { opacity: 1; transform: translateY(0); }
+
+        .section-num {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.7rem; letter-spacing: 0.1em;
+            color: rgba(217,26,42,0.35); margin-bottom: 16px; display: block;
+        }
+        .section-line {
+            width: 22px; height: 1.5px; background: var(--red); opacity: 0.4;
+            margin-bottom: 16px;
+        }
+        .policy-section h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.6rem; font-weight: 600; line-height: 1.15;
+            margin-bottom: 20px; color: var(--paper);
+        }
+        .policy-section p {
+            font-size: 0.88rem; line-height: 1.9; color: var(--dim);
+            margin-bottom: 16px;
+        }
+        .policy-section p:last-child { margin-bottom: 0; }
+
+        /* Inline list inside policy */
+        .policy-items {
+            display: flex; flex-direction: column; gap: 0;
+            margin-top: 8px;
+        }
+        .policy-item {
+            display: flex; align-items: flex-start; gap: 14px;
+            padding: 13px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.85rem; color: var(--dim); line-height: 1.7;
+        }
+        .policy-item:first-child { border-top: 1px solid var(--border); }
+        .pi-dot {
+            width: 4px; height: 4px; background: var(--red); border-radius: 50%;
+            flex-shrink: 0; margin-top: 8px;
+        }
+
+        /* Highlight block */
+        .policy-highlight {
+            margin-top: 24px; padding: 22px 26px;
+            border-left: 2px solid var(--red);
+            background: rgba(217,26,42,0.04);
+        }
+        .policy-highlight p {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.15rem; font-style: italic; font-weight: 300;
+            color: var(--paper); line-height: 1.6; margin-bottom: 0;
+        }
+
+        /* Third-party chips */
+        .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+        .chip {
+            font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase;
+            padding: 5px 12px;
+            border: 1px solid var(--border); color: var(--dim);
+            transition: border-color 0.3s, color 0.3s;
+        }
+        .chip:hover { border-color: rgba(217,26,42,0.2); color: var(--paper); }
+
+        /* Contact CTA at bottom of privacy */
+        .privacy-cta {
+            margin-top: 20px; padding: 28px 32px;
+            border: 1px solid var(--border);
+            background: rgba(255,255,255,0.015);
+            display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 20px;
+        }
+        .privacy-cta p { font-size: 0.87rem; color: var(--dim); line-height: 1.7; }
+        .btn {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase;
+            text-decoration: none; display: inline-block;
+            padding: 12px 26px; flex-shrink: 0;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .btn-fill {
+            background: var(--red); color: #fff;
+            position: relative; overflow: hidden;
+        }
+        .btn-fill::after {
+            content: ''; position: absolute; inset: 0;
+            background: rgba(255,255,255,0.12);
+            transform: translateX(-101%); transition: transform 0.35s;
+        }
+        .btn-fill:hover::after { transform: translateX(0); }
+        .btn-fill:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(217,26,42,0.35); }
+
+        /* FOOTER */
+        footer {
+            padding: 36px 6vw; border-top: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 14px; position: relative; z-index: 1;
+        }
+        .f-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 700; }
+        .f-logo b { color: var(--red); }
+        .f-copy { font-size: 0.7rem; color: rgba(240,235,224,0.22); }
+        .f-links { display: flex; gap: 20px; }
+        .f-links a { font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(240,235,224,0.22); text-decoration: none; transition: color 0.3s; }
+        .f-links a:hover { color: var(--red); }
+
+        @keyframes up { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+
+        /* RESPONSIVE */
+        @media (max-width: 860px) {
+            .page-wrap { grid-template-columns: 1fr; }
+            .toc { display: none; }
+            .policy-content { padding-left: 0; }
+        }
+        @media (max-width: 600px) {
+            nav { padding: 0 5vw; }
+            .hero { padding: 100px 5vw 52px; }
+            .hero-word { display: none; }
+            .page-wrap { padding: 56px 5vw 80px; }
+            .privacy-cta { flex-direction: column; }
+            footer { flex-direction: column; text-align: center; padding: 28px 5vw; }
+            .f-links { justify-content: center; }
+        }
     </style>
 </head>
 <body>
-    <a href="/" class="back-link">← Back to Home</a>
-    <h1>Privacy Policy</h1>
-    <p><strong>Last Updated:</strong> January 10, 2026</p>
-    
-    <h2>Information We Collect</h2>
-    <p>We collect account information, usage data, and communication logs to provide our anime streaming service.</p>
-    
-    <h2>How We Use Information</h2>
-    <p>Data used for service operation, user support, content recommendations, and platform improvements.</p>
-    
-    <h2>Information Sharing</h2>
-    <p>We don't sell personal data. May share with service providers and as required by law.</p>
-    
-    <h2>Data Security</h2>
-    <p>We implement security measures to protect your information, though no system is 100% secure.</p>
-    
-    <h2>Your Rights</h2>
-    <p>You can access, update, or delete your account information through app settings.</p>
-    
-    <h2>Third-Party Services</h2>
-    <p>We use Firebase, Google services, and analytics tools governed by their privacy policies.</p>
-    
-    <h2>Contact Us</h2>
-    <p>For privacy concerns, contact us through the in-app support system.</p>
+
+    <nav>
+        <a href="/" class="nav-logo">Hio<b>taku</b></a>
+        <a href="/" class="back-link">Back to Home</a>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-glow"></div>
+        <div class="hero-lines"></div>
+        <div class="hero-word">Privacy</div>
+        <div class="hero-content">
+            <p class="page-label">Legal</p>
+            <h1>Privacy<br><em>Policy.</em></h1>
+            <div class="hero-meta">
+                <span class="meta-item">Last Updated — January 10, 2026</span>
+                <span class="meta-item">Hiotaku Platform</span>
+                <span class="meta-item">Nehu Singh</span>
+            </div>
+        </div>
+    </section>
+
+    <div class="page-wrap">
+
+        <!-- SIDEBAR TOC -->
+        <aside class="toc">
+            <p class="toc-label">Contents</p>
+            <ul class="toc-list">
+                <li><a href="#collect">Information We Collect</a></li>
+                <li><a href="#use">How We Use Information</a></li>
+                <li><a href="#sharing">Information Sharing</a></li>
+                <li><a href="#security">Data Security</a></li>
+                <li><a href="#rights">Your Rights</a></li>
+                <li><a href="#third">Third-Party Services</a></li>
+                <li><a href="#contact">Contact Us</a></li>
+            </ul>
+        </aside>
+
+        <!-- POLICY CONTENT -->
+        <main class="policy-content">
+
+            <div class="policy-section" id="collect">
+                <span class="section-num">01</span>
+                <div class="section-line"></div>
+                <h2>Information We Collect</h2>
+                <p>To deliver and continuously improve the Hiotaku experience, we collect a limited set of information from our users. This includes:</p>
+                <div class="policy-items">
+                    <div class="policy-item"><span class="pi-dot"></span> Account information provided during registration, such as your name and email address.</div>
+                    <div class="policy-item"><span class="pi-dot"></span> Usage data, including which content you watch, search, and interact with on the platform.</div>
+                    <div class="policy-item"><span class="pi-dot"></span> Communication logs when you contact us through the in-app support system.</div>
+                    <div class="policy-item"><span class="pi-dot"></span> Device and technical information needed to deliver and optimise streaming quality.</div>
+                </div>
+            </div>
+
+            <div class="policy-section" id="use">
+                <span class="section-num">02</span>
+                <div class="section-line"></div>
+                <h2>How We Use Information</h2>
+                <p>The information we collect is used exclusively to make Hiotaku work better for you. Specifically, your data is used for:</p>
+                <div class="policy-items">
+                    <div class="policy-item"><span class="pi-dot"></span> Operating and maintaining the platform and all its features.</div>
+                    <div class="policy-item"><span class="pi-dot"></span> Providing user support and resolving technical issues.</div>
+                    <div class="policy-item"><span class="pi-dot"></span> Generating personalised content recommendations based on your viewing history.</div>
+                    <div class="policy-item"><span class="pi-dot"></span> Improving platform performance, features, and overall user experience.</div>
+                </div>
+                <div class="policy-highlight">
+                    <p>"We do not use your data for advertising purposes. Hiotaku has no ads and no advertising partners."</p>
+                </div>
+            </div>
+
+            <div class="policy-section" id="sharing">
+                <span class="section-num">03</span>
+                <div class="section-line"></div>
+                <h2>Information Sharing</h2>
+                <p>Hiotaku does not sell, rent, or trade your personal data to any third party. We do not share your information for commercial gain.</p>
+                <p>In limited circumstances, data may be shared with trusted service providers who assist in operating the platform — strictly for technical and operational purposes, under confidentiality obligations. We may also disclose information when required by law or to protect the rights and safety of users.</p>
+            </div>
+
+            <div class="policy-section" id="security">
+                <span class="section-num">04</span>
+                <div class="section-line"></div>
+                <h2>Data Security</h2>
+                <p>We take the protection of your information seriously. Hiotaku implements industry-standard security measures — including encryption in transit and at rest — to safeguard your personal data against unauthorised access, alteration, disclosure, or destruction.</p>
+                <p>While we do everything reasonable to protect your data, no system connected to the internet can be guaranteed to be completely secure. We encourage users to use strong, unique passwords and to report any suspected security issues through the in-app support system immediately.</p>
+            </div>
+
+            <div class="policy-section" id="rights">
+                <span class="section-num">05</span>
+                <div class="section-line"></div>
+                <h2>Your Rights</h2>
+                <p>You have full control over your personal data on Hiotaku. Through your account settings, you can:</p>
+                <div class="policy-items">
+                    <div class="policy-item"><span class="pi-dot"></span> Access the personal information stored against your account.</div>
+                    <div class="policy-item"><span class="pi-dot"></span> Update or correct any inaccurate account details at any time.</div>
+                    <div class="policy-item"><span class="pi-dot"></span> Delete your account and associated data permanently.</div>
+                    <div class="policy-item"><span class="pi-dot"></span> Request a copy of your data or raise any data-related concern through support.</div>
+                </div>
+            </div>
+
+            <div class="policy-section" id="third">
+                <span class="section-num">06</span>
+                <div class="section-line"></div>
+                <h2>Third-Party Services</h2>
+                <p>Hiotaku integrates a small number of trusted third-party services to support platform infrastructure. Each of these operates under their own privacy policies, which we encourage you to review independently.</p>
+                <div class="chip-row">
+                    <span class="chip">Firebase</span>
+                    <span class="chip">Google Services</span>
+                    <span class="chip">Analytics Tools</span>
+                </div>
+            </div>
+
+            <div class="policy-section" id="contact">
+                <span class="section-num">07</span>
+                <div class="section-line"></div>
+                <h2>Contact Us</h2>
+                <p>If you have any questions, concerns, or requests regarding this privacy policy or how your personal data is handled, please reach out through the in-app support system. All privacy-related inquiries are handled directly by the developer.</p>
+                <div class="privacy-cta">
+                    <p>For privacy concerns, the in-app support system is the fastest and most direct way to reach us.</p>
+                    <a href="/" class="btn btn-fill">Open the App</a>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <footer>
+        <div class="f-logo">Hio<b>taku</b></div>
+        <p class="f-copy">2026 Hiotaku by Nehu Singh. Launched February 17, 2026.</p>
+        <div class="f-links">
+            <a href="/">Home</a>
+            <a href="/about.html">About</a>
+            <a href="/contact.html">Contact</a>
+        </div>
+    </footer>
+
+    <script>
+        // Scroll reveal
+        const obs = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); } });
+        }, { threshold: 0.05 });
+        document.querySelectorAll('.policy-section').forEach(el => obs.observe(el));
+
+        // TOC active state
+        const sections = document.querySelectorAll('.policy-section');
+        const tocLinks = document.querySelectorAll('.toc-list a');
+
+        const tocObs = new IntersectionObserver(entries => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    tocLinks.forEach(a => a.classList.remove('active'));
+                    const active = document.querySelector(`.toc-list a[href="#${e.target.id}"]`);
+                    if (active) active.classList.add('active');
+                }
+            });
+        }, { threshold: 0.4 });
+        sections.forEach(s => tocObs.observe(s));
+
+        // App open/download
+        function openOrDownloadApp() {
+            window.location.href = "hiotaku://";
+            setTimeout(function() {
+                window.location.href = "/hiotaku/relised/hiotaku.apk";
+            }, 2000);
+        }
+    </script>
+
+    <!-- Floating App Button -->
+    <div style="position:fixed;bottom:24px;right:24px;z-index:200;">
+        <button onclick="openOrDownloadApp()" style="padding:14px 28px;background:#d91a2a;color:#fff;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:600;cursor:pointer;box-shadow:0 8px 24px rgba(217,26,42,0.4);transition:all 0.3s;text-transform:uppercase;letter-spacing:0.1em;">
+            Open App
+        </button>
+    </div>
 </body>
 </html>

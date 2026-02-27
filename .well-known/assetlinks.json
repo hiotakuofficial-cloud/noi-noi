@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.hiotaku.app",
+    "sha256_cert_fingerprints": [
+      "305BD2B1565622DC837395134A441651CE7F733F4794364D945DB398EA4B7E0E"
+    ]
+  }
+}]
