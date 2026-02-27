@@ -54,6 +54,10 @@ textarea { resize: vertical; min-height: 120px; }
 </style>
 </head>
 <body>
+<script src="supabase-helper.js"></script>
+<body>
+<script src="supabase-helper.js"></script>
+<body>
 <div class="container">
   <a href="index.php" class="back"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
   
@@ -149,13 +153,7 @@ document.getElementById('announceForm').addEventListener('submit', async functio
 async function loadAnnouncements() {
   const list = document.getElementById('announceList');
   try {
-    const res = await fetch('<?= SUPABASE_URL ?>/rest/v1/announcements?select=*&order=created_at.desc', {
-      headers: {
-        'apikey': '<?= SUPABASE_ANON_KEY ?>',
-        'Authorization': 'Bearer <?= SUPABASE_ANON_KEY ?>'
-      }
-    });
-    const data = await res.json();
+    const data = await supabase.get('announcements', {'select': '*', 'order': 'created_at.desc'});
     
     if (data.length === 0) {
       list.innerHTML = '<p style="color:#666;text-align:center;padding:40px">No announcements yet</p>';
@@ -191,14 +189,8 @@ async function deleteAnnouncement(id, title) {
   document.getElementById('confirmDelete').onclick = async function() {
     closeDeleteModal();
     try {
-      const res = await fetch('<?= SUPABASE_URL ?>/rest/v1/announcements?id=eq.' + id, {
-        method: 'DELETE',
-        headers: {
-          'apikey': '<?= SUPABASE_ANON_KEY ?>',
-          'Authorization': 'Bearer <?= SUPABASE_ANON_KEY ?>'
-        }
-      });
-      if (res.ok) loadAnnouncements();
+      const success = await supabase.delete('announcements', {'id': `eq.${id}`});
+      if (success) loadAnnouncements();
     } catch (err) {
       alert('Failed to delete');
     }

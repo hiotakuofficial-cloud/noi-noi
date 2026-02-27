@@ -275,6 +275,7 @@ body {
 </style>
 </head>
 <body>
+<script src="supabase-helper.js"></script>
 <div class="container">
   <div class="header">
     <div class="brand">
@@ -410,17 +411,14 @@ document.querySelectorAll('.card').forEach(card => {
   };
 });
 
-fetch('<?= SUPABASE_URL ?>/rest/v1/users?select=count', {
-  headers: {'apikey': '<?= SUPABASE_ANON_KEY ?>', 'Authorization': 'Bearer <?= SUPABASE_ANON_KEY ?>'}
-}).then(r => r.json()).then(d => document.getElementById('userCount').textContent = d[0]?.count || 0);
+supabase.get('users', {'select': 'count'})
+  .then(d => document.getElementById('userCount').textContent = d[0]?.count || 0);
 
-fetch('<?= SUPABASE_URL ?>/rest/v1/notifications?select=count', {
-  headers: {'apikey': '<?= SUPABASE_ANON_KEY ?>', 'Authorization': 'Bearer <?= SUPABASE_ANON_KEY ?>'}
-}).then(r => r.json()).then(d => document.getElementById('notifCount').textContent = d[0]?.count || 0);
+supabase.get('notifications', {'select': 'count'})
+  .then(d => document.getElementById('notifCount').textContent = d[0]?.count || 0);
 
-fetch('<?= SUPABASE_URL ?>/rest/v1/announcements?select=count&is_active=eq.true', {
-  headers: {'apikey': '<?= SUPABASE_ANON_KEY ?>', 'Authorization': 'Bearer <?= SUPABASE_ANON_KEY ?>'}
-}).then(r => r.json()).then(d => document.getElementById('announceCount').textContent = d[0]?.count || 0);
+supabase.get('announcements', {'select': 'count', 'is_active': 'eq.true'})
+  .then(d => document.getElementById('announceCount').textContent = d[0]?.count || 0);
 </script>
 </body>
 </html>

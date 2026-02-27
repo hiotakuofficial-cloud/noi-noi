@@ -40,6 +40,10 @@ tr:last-child td { border-bottom: none; }
 </style>
 </head>
 <body>
+<script src="supabase-helper.js"></script>
+<body>
+<script src="supabase-helper.js"></script>
+<body>
 <div class="container">
   <a href="index.php" class="back"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
   
@@ -98,12 +102,7 @@ tr:last-child td { border-bottom: none; }
 async function loadStats() {
   try {
     // Today's stats
-    const todayRes = await fetch('<?= SUPABASE_URL ?>/rest/v1/today_stats?date=eq.' + new Date().toISOString().split('T')[0], {
-      headers: {
-        'apikey': '<?= SUPABASE_ANON_KEY ?>',
-        'Authorization': 'Bearer <?= SUPABASE_ANON_KEY ?>'
-      }
-    });
+    const todayRes = await fetch('../api/proxy.php?endpoint=today_stats&date=eq.' + new Date().toISOString().split('T')[0]);
     const todayData = await todayRes.json();
     
     if (todayData.length > 0) {
@@ -115,33 +114,20 @@ async function loadStats() {
     }
 
     // Total users
-    const usersRes = await fetch('<?= SUPABASE_URL ?>/rest/v1/users?select=id', {
-      headers: {
-        'apikey': '<?= SUPABASE_ANON_KEY ?>',
-        'Authorization': 'Bearer <?= SUPABASE_ANON_KEY ?>'
-      }
-    });
-    const users = await usersRes.json();
+    const users = await supabase.get('users', {'select': 'id'});
     document.getElementById('totalUsers').textContent = users.length;
 
     // Last 7 days chart
-    const chartRes = await fetch('<?= SUPABASE_URL ?>/rest/v1/today_stats?select=*&order=date.desc&limit=7', {
-      headers: {
-        'apikey': '<?= SUPABASE_ANON_KEY ?>',
-        'Authorization': 'Bearer <?= SUPABASE_ANON_KEY ?>'
-      }
-    });
-    const chartData = await chartRes.json();
+    const chartData = await supabase.get('today_stats', {'select': '*', 'order': 'date.desc', 'limit': '7'});
     renderChart(chartData.reverse());
 
     // Top users today
-    const topRes = await fetch('<?= SUPABASE_URL ?>/rest/v1/today_opens?date=eq.' + new Date().toISOString().split('T')[0] + '&select=*&order=total_opens.desc&limit=10', {
-      headers: {
-        'apikey': '<?= SUPABASE_ANON_KEY ?>',
-        'Authorization': 'Bearer <?= SUPABASE_ANON_KEY ?>'
-      }
+    const topUsers = await supabase.get('today_opens', {
+      'date': `eq.${new Date().toISOString().split('T')[0]}`,
+      'select': '*',
+      'order': 'total_opens.desc',
+      'limit': '10'
     });
-    const topUsers = await topRes.json();
     renderTopUsers(topUsers);
 
   } catch (err) {

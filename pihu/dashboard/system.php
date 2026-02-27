@@ -35,6 +35,7 @@ h1 { font-size: 3rem; font-weight: 700; margin-bottom: 12px; letter-spacing: -0.
 </style>
 </head>
 <body>
+<script src="supabase-helper.js"></script>
 <div class="container">
   <a href="index.php" class="back"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
   
@@ -73,13 +74,7 @@ let settings = {};
 
 async function loadSettings() {
   try {
-    const res = await fetch('<?= SUPABASE_URL ?>/rest/v1/system_settings?select=*&limit=1', {
-      headers: {
-        'apikey': '<?= SUPABASE_ANON_KEY ?>',
-        'Authorization': 'Bearer <?= SUPABASE_ANON_KEY ?>'
-      }
-    });
-    const data = await res.json();
+    const data = await supabase.get('system_settings', {'select': '*', 'limit': '1'});
     
     if (data.length > 0) {
       settings = data[0];
@@ -99,18 +94,12 @@ async function toggleSetting(field) {
   const newValue = !settings[field];
   
   try {
-    const res = await fetch('<?= SUPABASE_URL ?>/rest/v1/system_settings?id=eq.' + settings.id, {
-      method: 'PATCH',
-      headers: {
-        'apikey': '<?= SUPABASE_ANON_KEY ?>',
-        'Authorization': 'Bearer <?= SUPABASE_ANON_KEY ?>',
-        'Content-Type': 'application/json',
-        'Prefer': 'return=minimal'
-      },
-      body: JSON.stringify({ [field]: newValue, updated_at: new Date().toISOString() })
-    });
+    const success = await supabase.patch('system_settings', 
+      { [field]: newValue, updated_at: new Date().toISOString() },
+      { 'id': `eq.${settings.id}` }
+    );
     
-    if (res.ok) {
+    if (success) {
       settings[field] = newValue;
       updateUI();
       showAlert('Setting updated successfully', 'success');

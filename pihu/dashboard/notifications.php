@@ -46,6 +46,7 @@ textarea { resize: vertical; min-height: 100px; }
 </style>
 </head>
 <body>
+<script src="supabase-helper.js"></script>
 <div class="container">
   <a href="index.php" class="back"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
   
@@ -101,13 +102,7 @@ textarea { resize: vertical; min-height: 100px; }
 <script>
 async function loadHistory() {
   try {
-    const res = await fetch('<?= SUPABASE_URL ?>/rest/v1/notifications?select=*&order=created_at.desc&limit=50', {
-      headers: {
-        'apikey': '<?= SUPABASE_ANON_KEY ?>',
-        'Authorization': 'Bearer <?= SUPABASE_ANON_KEY ?>'
-      }
-    });
-    const notifs = await res.json();
+    const notifs = await supabase.get('notifications', {'select': '*', 'order': 'created_at.desc', 'limit': '50'});
     
     const list = document.getElementById('historyList');
     if (notifs.length === 0) {
@@ -186,13 +181,7 @@ async function deleteNotification(id) {
   if (!confirm('Delete this notification?')) return;
   
   try {
-    await fetch('<?= SUPABASE_URL ?>/rest/v1/notifications?id=eq.' + id, {
-      method: 'DELETE',
-      headers: {
-        'apikey': '<?= SUPABASE_ANON_KEY ?>',
-        'Authorization': 'Bearer <?= SUPABASE_ANON_KEY ?>'
-      }
-    });
+    await supabase.delete('notifications', {'id': `eq.${id}`});
     loadHistory();
   } catch (err) {
     alert('Failed to delete');
@@ -203,13 +192,7 @@ async function clearAllNotifications() {
   if (!confirm('Delete ALL notification history? This cannot be undone!')) return;
   
   try {
-    await fetch('<?= SUPABASE_URL ?>/rest/v1/notifications?id=neq.00000000-0000-0000-0000-000000000000', {
-      method: 'DELETE',
-      headers: {
-        'apikey': '<?= SUPABASE_ANON_KEY ?>',
-        'Authorization': 'Bearer <?= SUPABASE_ANON_KEY ?>'
-      }
-    });
+    await supabase.delete('notifications', {'id': 'neq.00000000-0000-0000-0000-000000000000'});
     loadHistory();
   } catch (err) {
     alert('Failed to clear history');

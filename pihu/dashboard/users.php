@@ -49,6 +49,10 @@ textarea { resize: vertical; min-height: 80px; }
 </style>
 </head>
 <body>
+<script src="supabase-helper.js"></script>
+<body>
+<script src="supabase-helper.js"></script>
+<body>
 <div class="container">
   <a href="index.php" class="back"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
   
@@ -127,13 +131,10 @@ document.getElementById('banType').addEventListener('change', function() {
 
 async function loadUsers() {
   try {
-    const res = await fetch('<?= SUPABASE_URL ?>/rest/v1/users?select=id,display_name,username,email,is_active,banned_until,ban_reason,created_at&order=created_at.desc', {
-      headers: {
-        'apikey': '<?= SUPABASE_ANON_KEY ?>',
-        'Authorization': 'Bearer <?= SUPABASE_ANON_KEY ?>'
-      }
+    allUsers = await supabase.get('users', {
+      'select': 'id,display_name,username,email,is_active,banned_until,ban_reason,created_at',
+      'order': 'created_at.desc'
     });
-    allUsers = await res.json();
     renderUsers(allUsers);
   } catch (err) {
     document.getElementById('userList').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#ff4d6a">Failed to load users</td></tr>';
@@ -221,16 +222,7 @@ document.getElementById('banForm').addEventListener('submit', async function(e) 
   }
   
   try {
-    await fetch('<?= SUPABASE_URL ?>/rest/v1/users?id=eq.' + userId, {
-      method: 'PATCH',
-      headers: {
-        'apikey': '<?= SUPABASE_ANON_KEY ?>',
-        'Authorization': 'Bearer <?= SUPABASE_ANON_KEY ?>',
-        'Content-Type': 'application/json',
-        'Prefer': 'return=minimal'
-      },
-      body: JSON.stringify(updateData)
-    });
+    await supabase.patch('users', updateData, {'id': `eq.${userId}`});
     
     closeBanModal();
     loadUsers();
@@ -246,16 +238,10 @@ async function unbanUser(userId) {
   document.getElementById('confirmUnban').onclick = async function() {
     closeUnbanModal();
     try {
-      await fetch('<?= SUPABASE_URL ?>/rest/v1/users?id=eq.' + userId, {
-        method: 'PATCH',
-        headers: {
-          'apikey': '<?= SUPABASE_ANON_KEY ?>',
-          'Authorization': 'Bearer <?= SUPABASE_ANON_KEY ?>',
-          'Content-Type': 'application/json',
-          'Prefer': 'return=minimal'
-        },
-        body: JSON.stringify({ is_active: true, banned_until: null, ban_reason: null })
-      });
+      await supabase.patch('users', 
+        { is_active: true, banned_until: null, ban_reason: null },
+        {'id': `eq.${userId}`}
+      );
       loadUsers();
     } catch (err) {
       alert('Failed to unban user: ' + err.message);

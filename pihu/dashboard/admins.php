@@ -57,6 +57,10 @@ tr:last-child td { border-bottom: none; }
 </style>
 </head>
 <body>
+<script src="supabase-helper.js"></script>
+<body>
+<script src="supabase-helper.js"></script>
+<body>
 <div class="container">
   <a href="index.php" class="back"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
   
@@ -133,13 +137,7 @@ tr:last-child td { border-bottom: none; }
 <script>
 async function loadAdmins() {
   try {
-    const res = await fetch('<?= SUPABASE_URL ?>/rest/v1/admins?select=*&order=created_at.desc', {
-      headers: {
-        'apikey': '<?= SUPABASE_ANON_KEY ?>',
-        'Authorization': 'Bearer <?= SUPABASE_ANON_KEY ?>'
-      }
-    });
-    const admins = await res.json();
+    const admins = await supabase.get('admins', {'select': '*', 'order': 'created_at.desc'});
     
     const list = document.getElementById('adminList');
     if (admins.length === 0) {
@@ -214,16 +212,7 @@ async function toggleStatus(id, newStatus) {
   document.getElementById('confirmBan').onclick = async function() {
     closeBanModal();
     try {
-      await fetch('<?= SUPABASE_URL ?>/rest/v1/admins?id=eq.' + id, {
-        method: 'PATCH',
-        headers: {
-          'apikey': '<?= SUPABASE_ANON_KEY ?>',
-          'Authorization': 'Bearer <?= SUPABASE_ANON_KEY ?>',
-          'Content-Type': 'application/json',
-          'Prefer': 'return=minimal'
-        },
-        body: JSON.stringify({ status: newStatus })
-      });
+      await supabase.patch('admins', { status: newStatus }, {'id': `eq.${id}`});
       loadAdmins();
     } catch (err) {
       alert('Failed to update status');
@@ -242,13 +231,7 @@ async function deleteAdmin(id, username) {
   document.getElementById('confirmDelete').onclick = async function() {
     closeDeleteModal();
     try {
-      await fetch('<?= SUPABASE_URL ?>/rest/v1/admins?id=eq.' + id, {
-        method: 'DELETE',
-        headers: {
-          'apikey': '<?= SUPABASE_ANON_KEY ?>',
-          'Authorization': 'Bearer <?= SUPABASE_ANON_KEY ?>'
-        }
-      });
+      await supabase.delete('admins', {'id': `eq.${id}`});
       loadAdmins();
     } catch (err) {
       alert('Failed to delete admin');

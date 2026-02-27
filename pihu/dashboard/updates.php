@@ -46,6 +46,10 @@ textarea { resize: vertical; min-height: 120px; }
 </style>
 </head>
 <body>
+<script src="supabase-helper.js"></script>
+<body>
+<script src="supabase-helper.js"></script>
+<body>
 <div class="container">
   <a href="index.php" class="back"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
   
@@ -97,13 +101,7 @@ textarea { resize: vertical; min-height: 120px; }
 <script>
 async function loadHistory() {
   try {
-    const res = await fetch('<?= SUPABASE_URL ?>/rest/v1/updates?select=*&order=created_at.desc', {
-      headers: {
-        'apikey': '<?= SUPABASE_ANON_KEY ?>',
-        'Authorization': 'Bearer <?= SUPABASE_ANON_KEY ?>'
-      }
-    });
-    const updates = await res.json();
+    const updates = await supabase.get('updates', {'select': '*', 'order': 'created_at.desc'});
     
     const list = document.getElementById('historyList');
     if (updates.length === 0) {
@@ -178,13 +176,7 @@ async function deleteUpdate(version) {
   if (!confirm(`Delete version ${version}?`)) return;
   
   try {
-    await fetch('<?= SUPABASE_URL ?>/rest/v1/updates?version=eq.' + version, {
-      method: 'DELETE',
-      headers: {
-        'apikey': '<?= SUPABASE_ANON_KEY ?>',
-        'Authorization': 'Bearer <?= SUPABASE_ANON_KEY ?>'
-      }
-    });
+    await supabase.delete('updates', {'version': `eq.${version}`});
     loadHistory();
   } catch (err) {
     alert('Failed to delete');
