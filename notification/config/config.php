@@ -9,7 +9,7 @@ define('SUPABASE_ANON_KEY', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdX
 
 // Firebase Configuration
 define('FIREBASE_PROJECT_ID', 'hiotaku-flutter');
-define('FIREBASE_SERVICE_ACCOUNT_PATH', __DIR__ . '/../../service-account.json');
+define('FIREBASE_SERVICE_ACCOUNT_PATH', __DIR__ . '/service-account.json');
 define('FCM_ENDPOINT', 'https://fcm.googleapis.com/v1/projects/' . FIREBASE_PROJECT_ID . '/messages:send');
 define('OAUTH_ENDPOINT', 'https://oauth2.googleapis.com/token');
 define('FIREBASE_SCOPE', 'https://www.googleapis.com/auth/firebase.messaging');
