@@ -186,7 +186,7 @@ class NotificationSender {
         }
         
         // Fix private key format - replace escaped newlines with actual newlines
-        $privateKey = str_replace('\\n', "\n", $serviceAccount['private_key']);
+        $privateKey = str_replace('\n', "\n", $serviceAccount['private_key']);
         
         // Create JWT
         $header = ['alg' => 'RS256', 'typ' => 'JWT'];
@@ -365,6 +365,11 @@ class NotificationSender {
      * Prepare data for FCM (all values must be strings)
      */
     private function prepareData($data) {
+        // If empty array, return empty object for FCM
+        if (empty($data)) {
+            return new stdClass();
+        }
+        
         $prepared = [];
         foreach ($data as $key => $value) {
             $prepared[$key] = is_string($value) ? $value : json_encode($value);
