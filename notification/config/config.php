@@ -12,8 +12,11 @@ if (file_exists(__DIR__ . '/../../.env')) {
             list($key, $value) = explode('=', $line, 2);
             $key = trim($key);
             $value = trim($value);
-            // Remove quotes
-            $value = trim($value, "'\"");
+            // Remove only outer quotes if present
+            if ((substr($value, 0, 1) === "'" && substr($value, -1) === "'") ||
+                (substr($value, 0, 1) === '"' && substr($value, -1) === '"')) {
+                $value = substr($value, 1, -1);
+            }
             if (!isset($_ENV[$key])) {
                 $_ENV[$key] = $value;
                 putenv("$key=$value");
@@ -30,14 +33,9 @@ define('SUPABASE_ANON_KEY', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdX
 define('FIREBASE_PROJECT_ID', 'hiotaku-flutter');
 
 // Get service account from env or file
-$envServiceAccount = getenv('FIREBASE_SERVICE_ACCOUNT');
-if ($envServiceAccount) {
-    define('FIREBASE_SERVICE_ACCOUNT_JSON', $envServiceAccount);
-    define('FIREBASE_SERVICE_ACCOUNT_PATH', null);
-} else {
-    define('FIREBASE_SERVICE_ACCOUNT_PATH', __DIR__ . '/service-account.json');
-    define('FIREBASE_SERVICE_ACCOUNT_JSON', null);
-}
+// TEMPORARILY FORCE FILE USAGE FOR DEBUGGING
+define('FIREBASE_SERVICE_ACCOUNT_PATH', __DIR__ . '/service-account.json');
+define('FIREBASE_SERVICE_ACCOUNT_JSON', null);
 
 define('FCM_ENDPOINT', 'https://fcm.googleapis.com/v1/projects/' . FIREBASE_PROJECT_ID . '/messages:send');
 define('OAUTH_ENDPOINT', 'https://oauth2.googleapis.com/token');
