@@ -49,13 +49,20 @@ class NotificationSender {
                 }
             }
             
-            return [
+            $response = [
                 'success' => $successCount > 0,
                 'recipients_count' => 1,
                 'tokens_sent' => $successCount,
                 'total_tokens' => count($tokens),
                 'details' => $results
             ];
+            
+            // Add error message if all tokens failed
+            if ($successCount === 0 && !empty($results)) {
+                $response['error'] = $results[0]['error'] ?? 'All notification tokens failed';
+            }
+            
+            return $response;
             
         } catch (Exception $e) {
             return [
