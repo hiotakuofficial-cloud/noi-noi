@@ -3,25 +3,39 @@
  * MovieBox Web API Client (No Auth Required)
  */
 
-require_once __DIR__ . '/cache/cache.php';
 require_once __DIR__ . '/../auth.php';
 
 // Verify API token
 verifyApiToken();
 
+// Simple cache system (same as api.php)
+$cache_dir = '/tmp/moviebox_cache/';
+if (!is_dir($cache_dir)) {
+    @mkdir($cache_dir, 0755, true);
+}
+
+function mb_getCacheKey($url) {
+    return md5($url);
+}
+
+function mb_getCache($key) {
+    global $cache_dir;
+    $file = $cache_dir . $key;
+    if (file_exists($file) && (time() - filemtime($file)) < 3600) { // 1h cache
+        return file_get_contents($file);
+    }
+    return false;
+}
+
+function mb_setCache($key, $data, $ttl = 3600) {
+    global $cache_dir;
+    @file_put_contents($cache_dir . $key, $data);
+}
+
 class MovieBoxAPI {
     private $baseUrl = 'https://themoviebox.org/wefeed-h5api-bff';
     private $token = null;
     private $cookies = [];
-    private $cache = null;
-    
-    public function __construct() {
-        // Only initialize cache if directory is writable
-        $cacheDir = __DIR__ . '/cache';
-        if (is_dir($cacheDir) && is_writable($cacheDir)) {
-            $this->cache = new Cache($cacheDir);
-        }
-    }
     
     public function setCookies($cookies) {
         $this->cookies = $cookies;
@@ -55,18 +69,18 @@ class MovieBoxAPI {
     }
     
     private function request($endpoint, $params = [], $useAuth = false, $refererPath = null) {
-        // Check cache first (except for play endpoint)
-        if ($this->cache && $endpoint !== '/subject/play') {
-            $cacheKey = Cache::key($endpoint, $params);
-            $cached = $this->cache->get($cacheKey);
-            if ($cached !== null) {
-                return $cached;
-            }
-        }
-        
         $url = $this->baseUrl . $endpoint;
         if (!empty($params)) {
             $url .= '?' . http_build_query($params);
+        }
+        
+        // Check cache first (except for play endpoint)
+        if ($endpoint !== '/subject/play') {
+            $cacheKey = mb_getCacheKey($url);
+            $cached = mb_getCache($cacheKey);
+            if ($cached !== false) {
+                return json_decode($cached, true);
+            }
         }
         
         $referer = $refererPath ? "https://themoviebox.org{$refererPath}" : 'https://themoviebox.org/';
@@ -120,9 +134,9 @@ class MovieBoxAPI {
         $result = json_decode($response, true);
         
         // Cache successful responses (except play endpoint)
-        if ($this->cache && $endpoint !== '/subject/play' && isset($result['code']) && $result['code'] === 0) {
+        if ($endpoint !== '/subject/play' && isset($result['code']) && $result['code'] === 0) {
             $ttl = $this->getCacheTTL($endpoint);
-            $this->cache->set($cacheKey, $result, $ttl);
+            mb_setCache($cacheKey, $response, $ttl);
         }
         
         return $result;
@@ -252,23 +266,21 @@ switch ($action) {
         break;
         
     case 'cache':
-        if (!$api->cache) {
-            echo json_encode(['error' => 'Cache not available'], JSON_PRETTY_PRINT);
-            break;
-        }
-        
         $subAction = $_GET['sub'] ?? 'stats';
         switch ($subAction) {
             case 'stats':
-                echo json_encode($api->cache->getStats(), JSON_PRETTY_PRINT);
+                $files = glob($cache_dir . '*');
+                $total = count($files);
+                $size = array_sum(array_map('filesize', $files));
+                echo json_encode([
+                    'total' => $total,
+                    'size' => $size,
+                    'size_mb' => round($size / 1024 / 1024, 2)
+                ], JSON_PRETTY_PRINT);
                 break;
             case 'clear':
-                $api->cache->clear();
+                array_map('unlink', glob($cache_dir . '*'));
                 echo json_encode(['success' => true, 'message' => 'Cache cleared'], JSON_PRETTY_PRINT);
-                break;
-            case 'clean':
-                $cleaned = $api->cache->cleanExpired();
-                echo json_encode(['success' => true, 'cleaned' => $cleaned], JSON_PRETTY_PRINT);
                 break;
             default:
                 echo json_encode(['error' => 'Invalid cache action'], JSON_PRETTY_PRINT);
