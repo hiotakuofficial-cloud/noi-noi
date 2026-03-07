@@ -52,6 +52,8 @@ class MovieBoxAPI {
     
     private function request($endpoint, $params = [], $useAuth = false, $refererPath = null) {
         // Check cache first (except for play endpoint)
+        // Temporarily disabled due to permission issues
+        /*
         if ($endpoint !== '/subject/play') {
             $cacheKey = Cache::key($endpoint, $params);
             $cached = $this->cache->get($cacheKey);
@@ -59,6 +61,7 @@ class MovieBoxAPI {
                 return $cached;
             }
         }
+        */
         
         $url = $this->baseUrl . $endpoint;
         if (!empty($params)) {
@@ -116,10 +119,13 @@ class MovieBoxAPI {
         $result = json_decode($response, true);
         
         // Cache successful responses (except play endpoint)
+        // Temporarily disabled due to permission issues
+        /*
         if ($endpoint !== '/subject/play' && isset($result['code']) && $result['code'] === 0) {
             $ttl = $this->getCacheTTL($endpoint);
             $this->cache->set($cacheKey, $result, $ttl);
         }
+        */
         
         return $result;
     }

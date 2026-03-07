@@ -3,7 +3,158 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hiotaku — Anime, Unleashed</title>
+
+<!-- Primary Meta Tags -->
+<title>Hiotaku - Watch Free Anime Online | Stream HD Episodes</title>
+<meta name="title" content="Hiotaku - Watch Free Anime Online | Stream HD Episodes">
+<meta name="description" content="Watch and download anime online free in HD quality. Stream latest anime episodes including Demon Slayer, One Piece, Attack on Titan, Jujutsu Kaisen with Hindi dub & English sub. India's #1 free anime streaming platform.">
+<meta name="keywords" content="watch anime online free, anime streaming India, download anime episodes, demon slayer episodes, one piece streaming, attack on titan anime, jujutsu kaisen free, chainsaw man episodes, anime hindi dubbed, anime english subbed, free anime website, hd anime streaming, latest anime 2026, best anime streaming site India, free anime download app, watch anime without ads">
+<meta name="robots" content="index, follow">
+<meta name="author" content="Hiotaku">
+<meta name="theme-color" content="#d91a2a">
+<link rel="canonical" href="https://www.hiotaku.in/">
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.hiotaku.in/">
+<meta property="og:title" content="Hiotaku - Watch Free Anime Online | Stream HD Episodes">
+<meta property="og:description" content="Stream and download latest anime episodes free in HD. Watch Demon Slayer, One Piece, Attack on Titan, Jujutsu Kaisen with Hindi dub & English sub on India's best anime platform.">
+<meta property="og:image" content="https://www.hiotaku.in/assets/image/logo.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:site_name" content="Hiotaku">
+<meta property="og:locale" content="en_IN">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://www.hiotaku.in/">
+<meta name="twitter:title" content="Hiotaku - Watch Free Anime Online | Stream HD">
+<meta name="twitter:description" content="Stream latest anime episodes free in HD. Watch Demon Slayer, One Piece, Attack on Titan with Hindi dub & English sub.">
+<meta name="twitter:image" content="https://www.hiotaku.in/assets/image/logo.png">
+
+<!-- Favicon -->
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/favicon.png">
+<link rel="shortcut icon" href="/assets/favicon/favicon.png">
+
+<!-- Preconnect for Performance -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<!-- Schema.org JSON-LD -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Hiotaku",
+  "alternateName": "Hiotaku Anime Streaming",
+  "url": "https://www.hiotaku.in",
+  "description": "Watch and download anime online free in HD quality. India's premier anime streaming platform.",
+  "inLanguage": "en-IN"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Hiotaku",
+  "url": "https://www.hiotaku.in",
+  "logo": "https://www.hiotaku.in/assets/image/logo.png",
+  "description": "India's leading free anime streaming and download platform",
+  "foundingDate": "2025",
+  "founder": {
+    "@type": "Person",
+    "name": "NEHU SINGH"
+  },
+  "sameAs": [
+    "https://twitter.com/hiotaku",
+    "https://instagram.com/hiotaku"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "Customer Support",
+    "url": "https://www.hiotaku.in/contact.html",
+    "availableLanguage": ["English", "Hindi"]
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "MobileApplication",
+  "name": "Hiotaku",
+  "operatingSystem": "Android",
+  "applicationCategory": "EntertainmentApplication",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "INR"
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.8",
+    "ratingCount": "1250"
+  },
+  "description": "Watch and download anime free in HD. Stream Demon Slayer, One Piece, Attack on Titan with Hindi dub & English sub.",
+  "downloadUrl": "https://www.hiotaku.in/hiotaku/relised/hiotaku.apk",
+  "screenshot": "https://www.hiotaku.in/assets/image/logo.png",
+  "softwareVersion": "1.0",
+  "datePublished": "2026-02-17",
+  "author": {
+    "@type": "Person",
+    "name": "NEHU SINGH"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Home",
+    "item": "https://www.hiotaku.in/"
+  }]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [{
+    "@type": "Question",
+    "name": "Is Hiotaku free to use?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Yes, Hiotaku is completely free with zero ads. Stream and download unlimited anime episodes without any cost."
+    }
+  },{
+    "@type": "Question",
+    "name": "Can I download anime episodes?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Yes, Hiotaku allows you to download anime episodes for offline viewing in HD quality."
+    }
+  },{
+    "@type": "Question",
+    "name": "Does Hiotaku have Hindi dubbed anime?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Yes, we offer anime with both Hindi dub and English subtitles for Indian viewers."
+    }
+  },{
+    "@type": "Question",
+    "name": "What anime can I watch on Hiotaku?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Watch popular anime including Demon Slayer, One Piece, Attack on Titan, Jujutsu Kaisen, Chainsaw Man, and many more latest releases."
+    }
+  }]
+}
+</script>
+
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -559,6 +710,7 @@ footer {
       <li><a href="#features">Features</a></li>
       <li><a href="#compare">Compare</a></li>
       <li><a href="#ai">AI</a></li>
+      <li><a href="blog/">Blog</a></li>
     </ul>
     <span class="nav-pill">Feb 2026</span>
     <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
@@ -570,6 +722,7 @@ footer {
   <a href="#features">Features</a>
   <a href="#compare">Compare</a>
   <a href="#ai">AI Companion</a>
+  <a href="blog/">Blog</a>
 </div>
 
 <!-- HERO -->
@@ -788,6 +941,7 @@ footer {
   <div class="f-logo">Hio<b>taku</b></div>
   <p class="f-copy">2026 Hiotaku. Launched February 17, 2026.</p>
   <div class="f-links">
+    <a href="blog/">Blog</a>
     <a href="privacy.html">Privacy Policy</a>
     <a href="terms.html">Terms of Service</a>
     <a href="contact.html">Contact Us</a>
