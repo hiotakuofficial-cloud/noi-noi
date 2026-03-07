@@ -13,10 +13,14 @@ class MovieBoxAPI {
     private $baseUrl = 'https://themoviebox.org/wefeed-h5api-bff';
     private $token = null;
     private $cookies = [];
-    private $cache;
+    private $cache = null;
     
     public function __construct() {
-        $this->cache = new Cache(__DIR__ . '/cache');
+        // Only initialize cache if directory is writable
+        $cacheDir = __DIR__ . '/cache';
+        if (is_dir($cacheDir) && is_writable($cacheDir)) {
+            $this->cache = new Cache($cacheDir);
+        }
     }
     
     public function setCookies($cookies) {
@@ -52,16 +56,13 @@ class MovieBoxAPI {
     
     private function request($endpoint, $params = [], $useAuth = false, $refererPath = null) {
         // Check cache first (except for play endpoint)
-        // Temporarily disabled due to permission issues
-        /*
-        if ($endpoint !== '/subject/play') {
+        if ($this->cache && $endpoint !== '/subject/play') {
             $cacheKey = Cache::key($endpoint, $params);
             $cached = $this->cache->get($cacheKey);
             if ($cached !== null) {
                 return $cached;
             }
         }
-        */
         
         $url = $this->baseUrl . $endpoint;
         if (!empty($params)) {
@@ -119,13 +120,10 @@ class MovieBoxAPI {
         $result = json_decode($response, true);
         
         // Cache successful responses (except play endpoint)
-        // Temporarily disabled due to permission issues
-        /*
-        if ($endpoint !== '/subject/play' && isset($result['code']) && $result['code'] === 0) {
+        if ($this->cache && $endpoint !== '/subject/play' && isset($result['code']) && $result['code'] === 0) {
             $ttl = $this->getCacheTTL($endpoint);
             $this->cache->set($cacheKey, $result, $ttl);
         }
-        */
         
         return $result;
     }
@@ -254,6 +252,11 @@ switch ($action) {
         break;
         
     case 'cache':
+        if (!$api->cache) {
+            echo json_encode(['error' => 'Cache not available'], JSON_PRETTY_PRINT);
+            break;
+        }
+        
         $subAction = $_GET['sub'] ?? 'stats';
         switch ($subAction) {
             case 'stats':
