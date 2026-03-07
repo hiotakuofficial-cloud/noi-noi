@@ -146,6 +146,7 @@ class MovieBoxAPI {
         $ttls = [
             '/home' => 3600,              // 1 hour
             '/subject/trending' => 1800,  // 30 min
+            '/subject/search' => 1800,    // 30 min
             '/detail' => 7200,            // 2 hours
             '/subject/detail-rec' => 3600,// 1 hour
             '/subject/caption' => 86400   // 24 hours
@@ -167,6 +168,62 @@ class MovieBoxAPI {
     
     public function getTrending($page = 0, $perPage = 18) {
         return $this->request('/subject/trending', ['page' => $page, 'perPage' => $perPage]);
+    }
+    
+    public function search($keyword, $page = 0, $perPage = 28, $subjectType = 0) {
+        $endpoint = '/subject/search';
+        $url = $this->baseUrl . $endpoint;
+        
+        // Check cache first
+        $cacheKey = mb_getCacheKey($url . '?' . http_build_query(compact('keyword', 'page', 'perPage', 'subjectType')));
+        $cached = mb_getCache($cacheKey);
+        if ($cached !== false) {
+            return json_decode($cached, true);
+        }
+        
+        $token = $this->getToken();
+        
+        $postData = json_encode([
+            'keyword' => $keyword,
+            'page' => (string)$page,
+            'perPage' => $perPage,
+            'subjectType' => $subjectType
+        ]);
+        
+        $headers = [
+            'Accept: application/json',
+            'Content-Type: application/json',
+            'X-Client-Info: {"timezone":"Asia/Calcutta"}',
+            'Authorization: Bearer ' . $token,
+            'X-Request-Lang: en',
+            'Origin: https://themoviebox.org',
+            'Referer: https://themoviebox.org/',
+            'User-Agent: Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36'
+        ];
+        
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        
+        if ($httpCode !== 200) {
+            return ['error' => 'HTTP ' . $httpCode];
+        }
+        
+        $result = json_decode($response, true);
+        
+        // Cache successful responses
+        if (isset($result['code']) && $result['code'] === 0) {
+            mb_setCache($cacheKey, $response, 1800); // 30 min
+        }
+        
+        return $result;
     }
     
     public function getRecommendations($subjectId, $page = 1, $perPage = 12) {
@@ -226,6 +283,19 @@ switch ($action) {
         $page = $_GET['page'] ?? 0;
         $perPage = $_GET['perPage'] ?? 18;
         echo json_encode($api->getTrending($page, $perPage), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        break;
+    
+    case 'search':
+        $keyword = $_GET['keyword'] ?? '';
+        $page = $_GET['page'] ?? 0;
+        $perPage = $_GET['perPage'] ?? 28;
+        $subjectType = $_GET['subjectType'] ?? 0;
+        
+        if (empty($keyword)) {
+            echo json_encode(['error' => 'Keyword is required'], JSON_PRETTY_PRINT);
+        } else {
+            echo json_encode($api->search($keyword, $page, $perPage, $subjectType), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        }
         break;
         
     case 'recommendations':
