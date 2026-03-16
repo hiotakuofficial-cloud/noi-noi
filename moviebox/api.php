@@ -252,6 +252,58 @@ class MovieBoxAPI {
             'detailPath' => $detailPath
         ]);
     }
+
+    private static $contentTypes = [
+        'trending-cinema' => '5692654647815587592',
+        'trending'        => '4516404531735022304',
+        'bollywood'       => '414907768299210008',
+        'south-indian'    => '3859721901924910512',
+        'hollywood'       => '8019599703232971616',
+        'asian'           => '5429170738815291968',
+        'top-series'      => '4741626294545400336',
+        'anime'           => '8434602210994128512',
+        'reality-tv'      => '1255898847918934600',
+        'indian-drama'    => '4903182713986896328',
+        'korean-drama'    => '7878715743607948784',
+        'chinese-drama'   => '8788126208987989488',
+        'western-tv'      => '3910636007619709856',
+        'turkish-drama'   => '5177200225164885656',
+    ];
+
+    public function getContent($type, $page = 1, $perPage = 12) {
+        if (!isset(self::$contentTypes[$type])) {
+            return ['error' => 'Invalid type. Available: ' . implode(', ', array_keys(self::$contentTypes))];
+        }
+
+        $id = self::$contentTypes[$type];
+        $url = 'https://h5-api.aoneroom.com/wefeed-h5api-bff/ranking-list/content?id=' . $id . '&page=' . $page . '&perPage=' . $perPage;
+
+        $cacheKey = mb_getCacheKey($url);
+        $cached = mb_getCache($cacheKey);
+        if ($cached !== false) {
+            return json_decode($cached, true);
+        }
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Accept: application/json',
+            'X-Client-Info: {"timezone":"Asia/Calcutta"}',
+            'User-Agent: Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36'
+        ]);
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode !== 200) return ['error' => 'HTTP ' . $httpCode];
+
+        $result = json_decode($response, true);
+        if (isset($result['code']) && $result['code'] === 0) {
+            mb_setCache($cacheKey, $response, 1800);
+        }
+        return $result;
+    }
 }
 
 // Test
@@ -335,6 +387,17 @@ switch ($action) {
         }
         break;
         
+    case 'content':
+        $type = $_GET['type'] ?? '';
+        $page = (int)($_GET['page'] ?? 1);
+        $perPage = (int)($_GET['perPage'] ?? 12);
+        if (empty($type)) {
+            echo json_encode(['error' => 'Missing type parameter'], JSON_PRETTY_PRINT);
+        } else {
+            echo json_encode($api->getContent($type, $page, $perPage), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        }
+        break;
+
     case 'cache':
         $subAction = $_GET['sub'] ?? 'stats';
         switch ($subAction) {
