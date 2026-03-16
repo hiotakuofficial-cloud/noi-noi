@@ -29,8 +29,8 @@ function setCache($key, $data) {
 }
 
 class FixedHiAnimeAPI {
-    private $base_urls = ['https://hianime.to', 'https://hianime.pe'];
-    private $base_url = 'https://hianime.to'; // Add missing property
+    private $base_urls = ['https://hianime.re', 'https://hianime.re'];
+    private $base_url = 'https://hianime.re'; // Add missing property
     private $current_url_index = 0;
     private $user_agent = 'Mozilla/5.0 (X11; Linux x86_64; rv:122.0) Gecko/20100101 Firefox/122.0';
     
@@ -50,28 +50,58 @@ class FixedHiAnimeAPI {
         if ($cached !== false) {
             return $cached;
         }
-        
-        $context = stream_context_create([
-            'http' => [
-                'method' => 'GET',
-                'header' => 'User-Agent: ' . $this->user_agent,
-                'timeout' => 3
-            ]
+
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_TIMEOUT        => 20,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+            CURLOPT_HTTPHEADER     => [
+                'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+                'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+                'Accept-Language: en-US,en;q=0.9',
+                'Accept-Encoding: gzip, deflate',
+                'Cache-Control: no-cache',
+                'Sec-Fetch-Dest: document',
+                'Sec-Fetch-Mode: navigate',
+                'Sec-Fetch-Site: none',
+            ],
+            CURLOPT_ENCODING       => 'gzip, deflate',
+            CURLOPT_COOKIEFILE     => '',
+            CURLOPT_COOKIEJAR      => '/tmp/hianime_cookies.txt',
         ]);
-        
-        $response = @file_get_contents($url, false, $context);
-        
+        $response = curl_exec($ch);
+        curl_close($ch);
+
         if ($response !== false && !empty($response)) {
             setCache($cache_key, $response);
             return $response;
         }
-        
-        // Single retry with backup URL
+
+        // Single retry
         if ($retries > 0) {
-            $backup_url = $this->switchToBackup();
-            $url = str_replace($this->base_urls[($this->current_url_index + 1) % count($this->base_urls)], $backup_url, $url);
-            
-            $response = @file_get_contents($url, false, $context);
+            sleep(1);
+            $ch = curl_init($url);
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_TIMEOUT        => 20,
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                CURLOPT_HTTPHEADER     => [
+                    'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+                    'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                    'Accept-Language: en-US,en;q=0.9',
+                ],
+                CURLOPT_ENCODING       => 'gzip, deflate',
+                CURLOPT_COOKIEFILE     => '/tmp/hianime_cookies.txt',
+                CURLOPT_COOKIEJAR      => '/tmp/hianime_cookies.txt',
+            ]);
+            $response = curl_exec($ch);
+            curl_close($ch);
             if ($response !== false && !empty($response)) {
                 setCache($cache_key, $response);
                 return $response;
@@ -188,21 +218,19 @@ class FixedHiAnimeAPI {
         // Use actual HiAnime URLs that exist
         switch ($section) {
             case 'trending':
-                $pages = ['/most-popular', '/most-popular?page=2', '/most-popular?page=3', '/most-popular?page=4'];
+                $pages = ['/home'];
                 break;
             case 'popular':
-                $pages = ['/most-popular', '/most-popular?page=2', '/most-popular?page=3', '/most-popular?page=4', '/most-popular?page=5'];
+                $pages = ['/most-viewed', '/most-viewed?page=2'];
                 break;
             case 'top-airing':
-                // Use most-popular as fallback since top-airing might not exist
-                $pages = ['/most-popular?page=3', '/most-popular?page=4', '/most-popular?page=5', '/most-popular?page=6'];
+                $pages = ['/status/currently-airing', '/status/currently-airing?page=2'];
                 break;
             case 'recently-updated':
-                // Use different pages for variety
-                $pages = ['/most-popular?page=2', '/most-popular?page=4', '/most-popular?page=6', '/most-popular?page=7'];
+                $pages = ['/latest-updated', '/latest-updated?page=2'];
                 break;
             default:
-                $pages = ['/most-popular', '/most-popular?page=2', '/most-popular?page=3'];
+                $pages = ['/home'];
         }
         
         // Adjust pages based on requested page for pagination
@@ -1128,53 +1156,41 @@ class FixedHiAnimeAPI {
     
     private function parseAnimeList($html) {
         $results = [];
-        
-        // Use simpler approach: find dynamic-name links and match with closest preceding image
-        preg_match_all('/<a[^>]*href="\/([^"]*)"[^>]*class="dynamic-name"[^>]*title="([^"]*)"[^>]*>([^<]*)<\/a>/', $html, $links, PREG_SET_ORDER);
-        
-        foreach ($links as $link) {
-            $id = $link[1];
-            $title = html_entity_decode($link[2]);
-            
-            // Find the closest image before this link - try multiple search distances
-            $linkPos = strpos($html, $link[0]);
-            $poster = null;
-            
-            // Try different search distances
-            $searchDistances = [800, 1500, 2500];
-            
-            foreach ($searchDistances as $distance) {
-                $searchStart = max(0, $linkPos - $distance);
-                $searchHtml = substr($html, $searchStart, $linkPos - $searchStart + 100);
-                
-                // Find all images in the search area and take the last one (closest to link)
-                if (preg_match_all('/<img[^>]*data-src="([^"]*\.jpg)"/', $searchHtml, $imgMatches)) {
-                    $poster = end($imgMatches[1]);
-                    break;
-                } elseif (preg_match_all('/<img[^>]*src="([^"]*\.jpg)"/', $searchHtml, $imgMatches)) {
-                    $poster = end($imgMatches[1]);
-                    break;
-                }
-            }
-            
-            // Final fallback: if still no poster, look for any image in a larger area
-            if (!$poster) {
-                $searchStart = max(0, $linkPos - 4000);
-                $searchHtml = substr($html, $searchStart, 5000);
-                
-                if (preg_match('/<img[^>]*(?:data-src|src)="([^"]*\.jpg)"/', $searchHtml, $imgMatch)) {
-                    $poster = $imgMatch[1];
-                }
-            }
-            
+
+        // Match film-name block: <h3 class="film-name"><a href="...anime/ID" title="TITLE" ...>
+        preg_match_all(
+            '/<div class="film-poster"[^>]*>.*?<img[^>]*(?:data-src|src)="([^"]*)"[^>]*>.*?<div class="film-detail">.*?<a href="[^"]*\/anime\/([^"]+)"[^>]*title="([^"]*)"[^>]*>.*?<\/h3>.*?<span class="fdi-item">\s*([^<]*)\s*<\/span>/s',
+            $html, $matches, PREG_SET_ORDER
+        );
+
+        foreach ($matches as $m) {
             $results[] = [
-                'title' => $title,
-                'id' => $id,
-                'poster' => $poster,
-                'type' => 'TV'
+                'title' => html_entity_decode(trim($m[3])),
+                'id'     => 'anime/' . $m[2],
+                'poster' => $m[1],
+                'type'   => trim($m[4]) ?: 'TV',
             ];
         }
-        
+
+        // Fallback: simpler pattern if above fails
+        if (empty($results)) {
+            preg_match_all('/<a href="https?:\/\/hianime\.re\/anime\/([^"]+)"[^>]*title="([^"]*)"[^>]*class="d-title"/', $html, $links, PREG_SET_ORDER);
+            foreach ($links as $link) {
+                $linkPos = strpos($html, $link[0]);
+                $poster = null;
+                $searchHtml = substr($html, max(0, $linkPos - 800), 900);
+                if (preg_match('/<img[^>]*(?:data-src|src)="([^"]*\.(?:jpg|webp|png))"/', $searchHtml, $img)) {
+                    $poster = $img[1];
+                }
+                $results[] = [
+                    'title'  => html_entity_decode(trim($link[2])),
+                    'id'     => 'anime/' . $link[1],
+                    'poster' => $poster,
+                    'type'   => 'TV',
+                ];
+            }
+        }
+
         return $results;
     }
     
