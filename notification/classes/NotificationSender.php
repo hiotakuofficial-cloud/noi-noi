@@ -161,7 +161,6 @@ class NotificationSender {
                                 'content-available' => 1,
                             ]
                         ],
-                        'fcm_options' => array_filter(['image' => $imageUrl]),
                     ]
                 ]
             ];
@@ -179,7 +178,9 @@ class NotificationSender {
             $errMsg = $e->getMessage();
             if (strpos($errMsg, 'UNREGISTERED') !== false || 
                 strpos($errMsg, 'INVALID_ARGUMENT') !== false ||
-                strpos($errMsg, 'NOT_FOUND') !== false) {
+                strpos($errMsg, 'NOT_FOUND') !== false ||
+                strpos($errMsg, 'not found') !== false ||
+                strpos($errMsg, 'Requested entity was not found') !== false) {
                 $this->deactivateToken($token);
             }
             return [
@@ -206,17 +207,30 @@ class NotificationSender {
             return $this->accessToken;
         }
         
-        // Load service account from env or file
-        if (FIREBASE_SERVICE_ACCOUNT_JSON) {
-            $serviceAccount = json_decode(FIREBASE_SERVICE_ACCOUNT_JSON, true);
-        } else if (FIREBASE_SERVICE_ACCOUNT_PATH && file_exists(FIREBASE_SERVICE_ACCOUNT_PATH)) {
-            $serviceAccount = json_decode(file_get_contents(FIREBASE_SERVICE_ACCOUNT_PATH), true);
-        } else {
-            throw new Exception('Firebase service account not configured');
+        // Load service account — first try Supabase, then env, then file
+        $serviceAccount = null;
+
+        // 1. Try Supabase configuration_fcm table
+        $url = SUPABASE_URL . '/rest/v1/configuration_fcm?select=service_account&limit=1';
+        $response = $this->makeSupabaseRequest('GET', $url);
+        if (!empty($response) && isset($response[0]['service_account'])) {
+            $serviceAccount = is_array($response[0]['service_account'])
+                ? $response[0]['service_account']
+                : json_decode($response[0]['service_account'], true);
         }
-        
+
+        // 2. Fallback to env var
+        if (!$serviceAccount && FIREBASE_SERVICE_ACCOUNT_JSON) {
+            $serviceAccount = json_decode(FIREBASE_SERVICE_ACCOUNT_JSON, true);
+        }
+
+        // 3. Fallback to file
+        if (!$serviceAccount && FIREBASE_SERVICE_ACCOUNT_PATH && file_exists(FIREBASE_SERVICE_ACCOUNT_PATH)) {
+            $serviceAccount = json_decode(file_get_contents(FIREBASE_SERVICE_ACCOUNT_PATH), true);
+        }
+
         if (!$serviceAccount) {
-            throw new Exception('Invalid service account file');
+            throw new Exception('Firebase service account not configured');
         }
         
         // Fix private key format - replace escaped newlines with actual newlines
