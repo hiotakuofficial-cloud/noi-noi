@@ -132,7 +132,7 @@ class NotificationSender {
                 'message' => [
                     'token' => $token,
                     'data' => array_merge(
-                        $this->prepareData($notification['data'] ?? []),
+                        is_array($notification['data'] ?? []) ? $this->prepareData($notification['data'] ?? []) : [],
                         [
                             'title' => $notification['title'],
                             'body' => $notification['body'],
@@ -167,12 +167,26 @@ class NotificationSender {
             ];
             
         } catch (Exception $e) {
+            // Deactivate token if it's invalid/expired
+            $errMsg = $e->getMessage();
+            if (strpos($errMsg, 'UNREGISTERED') !== false || 
+                strpos($errMsg, 'INVALID_ARGUMENT') !== false ||
+                strpos($errMsg, 'NOT_FOUND') !== false) {
+                $this->deactivateToken($token);
+            }
             return [
                 'success' => false,
-                'error' => $e->getMessage(),
+                'error' => $errMsg,
                 'token' => substr($token, 0, 20) . '...'
             ];
         }
+    }
+
+    private function deactivateToken($token) {
+        try {
+            $url = SUPABASE_URL . '/rest/v1/fcm_tokens?fcm_token=eq.' . urlencode($token);
+            $this->makeSupabaseRequest('PATCH', $url, ['is_active' => false]);
+        } catch (Exception $e) {}
     }
     
     /**
@@ -294,10 +308,8 @@ class NotificationSender {
      * Get FCM tokens for a user
      */
     private function getUserFCMTokens($userId) {
-        $url = SUPABASE_URL . '/rest/v1/fcm_tokens?user_id=eq.' . urlencode($userId) . '&is_active=eq.true&select=fcm_token';
-        
+        $url = SUPABASE_URL . '/rest/v1/fcm_tokens?id=eq.' . urlencode($userId) . '&is_active=eq.true&select=fcm_token';
         $response = $this->makeSupabaseRequest('GET', $url);
-        
         return array_column($response, 'fcm_token');
     }
     
@@ -305,21 +317,18 @@ class NotificationSender {
      * Get all users with active FCM tokens
      */
     private function getAllUsersWithTokens() {
-        $url = SUPABASE_URL . '/rest/v1/fcm_tokens?is_active=eq.true&select=user_id,users(username)';
-        
+        $url = SUPABASE_URL . '/rest/v1/fcm_tokens?is_active=eq.true&select=id,identifier,fcm_token';
         $response = $this->makeSupabaseRequest('GET', $url);
-        
         $users = [];
         foreach ($response as $token) {
-            $userId = $token['user_id'];
-            if (!isset($users[$userId])) {
-                $users[$userId] = [
-                    'user_id' => $userId,
-                    'username' => $token['users']['username'] ?? 'Unknown'
+            $uid = $token['id'];
+            if (!isset($users[$uid])) {
+                $users[$uid] = [
+                    'user_id' => $token['id'],
+                    'username' => $token['identifier'] ?? 'Unknown'
                 ];
             }
         }
-        
         return array_values($users);
     }
     
@@ -377,8 +386,8 @@ class NotificationSender {
      * Prepare data for FCM (all values must be strings)
      */
     private function prepareData($data) {
-        // If empty array, return empty object for FCM
         if (empty($data)) {
+            return [];
             return new stdClass();
         }
         
