@@ -265,7 +265,7 @@ if (empty($API_KEY)) {
 }
 
 // Prepare request
-$data = [
+$requestData = [
     'model' => $MODEL,
     'messages' => [
         ['role' => 'system', 'content' => $enhancedSystemPrompt],
@@ -275,37 +275,28 @@ $data = [
     'temperature' => 0.7
 ];
 
-$headers = [
-    'Authorization: Bearer ' . $API_KEY,
-    'Content-Type: application/json',
-    'User-Agent: BlackboxCLI/1.0'
-];
-
-// Make API request using file_get_contents
-$opts = [
-    'http' => [
-        'method' => 'POST',
-        'header' => implode("\r\n", $headers),
-        'content' => json_encode($data),
-        'timeout' => 20,
-        'ignore_errors' => true
-    ]
-];
-
-$context = stream_context_create($opts);
-$response = @file_get_contents($API_URL, false, $context);
-$httpCode = 200; // Assume success if response received
-
-if ($response === false) {
-    $httpCode = 500;
+$API_KEYS = array_map('trim', explode(',', $API_KEY));
+$result = null;
+foreach ($API_KEYS as $key) {
+    if (empty($key)) continue;
+    $opts = [
+        'http' => [
+            'method' => 'POST',
+            'header' => "Authorization: Bearer $key\r\nContent-Type: application/json",
+            'content' => json_encode($requestData),
+            'timeout' => 20,
+            'ignore_errors' => true
+        ]
+    ];
+    $response = @file_get_contents($API_URL, false, stream_context_create($opts));
+    if (!$response) continue;
+    $decoded = json_decode($response, true);
+    if (isset($decoded['error'])) continue; // rate limit or any error, try next key
+    if (isset($decoded['choices'][0]['message']['content'])) {
+        $result = $decoded;
+        break;
+    }
 }
-
-if ($response === false || $httpCode !== 200) {
-    echo json_encode(['error' => 'API request failed']);
-    exit;
-}
-
-$result = json_decode($response, true);
 
 if (!$result || !isset($result['choices'][0]['message']['content'])) {
     echo json_encode(['error' => 'Invalid API response']);
