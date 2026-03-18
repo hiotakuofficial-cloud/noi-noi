@@ -87,6 +87,21 @@ textarea { resize: vertical; min-height: 100px; }
         </select>
       </div>
 
+      <div class="form-group">
+        <label>Description (optional — long text)</label>
+        <textarea id="description" placeholder="Full description shown in expanded notification..." style="min-height:70px;"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Image URL (optional — main big picture)</label>
+        <input type="url" id="image_url" placeholder="https://...image.jpg">
+      </div>
+
+      <div class="form-group">
+        <label>Thumbnail / Large Icon URL (optional)</label>
+        <input type="url" id="image_url_2" placeholder="https://...thumbnail.jpg">
+      </div>
+
       <button type="submit" class="btn" id="submitBtn">Send Notification</button>
       <div id="result" class="alert"></div>
     </form>
@@ -140,6 +155,10 @@ document.getElementById('notifForm').addEventListener('submit', async function(e
   btn.disabled = true;
   btn.textContent = 'Sending...';
   
+  const imageUrl = document.getElementById('image_url').value.trim();
+  const imageUrl2 = document.getElementById('image_url_2').value.trim();
+  const description = document.getElementById('description').value.trim();
+
   const data = {
     send_type: document.getElementById('sendType').value,
     user_id: document.getElementById('userId').value || null,
@@ -147,7 +166,12 @@ document.getElementById('notifForm').addEventListener('submit', async function(e
     body: document.getElementById('body').value,
     type: document.getElementById('type').value,
     screen: '/main',
-    click_action: 'FLUTTER_NOTIFICATION_CLICK'
+    click_action: 'FLUTTER_NOTIFICATION_CLICK',
+    data: {
+      ...(description && { description }),
+      ...(imageUrl && { image_url: imageUrl }),
+      ...(imageUrl2 && { image_url_2: imageUrl2 }),
+    }
   };
   
   try {

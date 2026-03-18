@@ -131,24 +131,27 @@ class NotificationSender {
             $message = [
                 'message' => [
                     'token' => $token,
-                    'notification' => [
-                        'title' => $notification['title'],
-                        'body' => $notification['body']
-                    ],
-                    'data' => $this->prepareData($notification['data'] ?? []),
+                    'data' => array_merge(
+                        $this->prepareData($notification['data'] ?? []),
+                        [
+                            'title' => $notification['title'],
+                            'body' => $notification['body'],
+                            'type' => $notification['type'] ?? 'general',
+                        ]
+                    ),
                     'android' => [
+                        'priority' => 'high',
                         'notification' => [
                             'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
                             'channel_id' => HIGH_IMPORTANCE_CHANNEL,
-                            'color' => DEFAULT_NOTIFICATION_COLOR,
-                            'icon' => DEFAULT_NOTIFICATION_ICON
                         ]
                     ],
                     'apns' => [
                         'payload' => [
                             'aps' => [
                                 'category' => 'HIOTAKU_NOTIFICATION',
-                                'sound' => 'default'
+                                'sound' => 'default',
+                                'content-available' => 1,
                             ]
                         ]
                     ]

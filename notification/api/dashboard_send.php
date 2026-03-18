@@ -19,13 +19,16 @@ try {
     
     $sendType = $data['send_type'] ?? 'all';
     
-    $notificationData = [
-        'source' => 'admin_dashboard',
-        'timestamp' => date('c'),
-        'notification_type' => $data['type'] ?? 'general',
-        'click_action' => $data['click_action'] ?? 'FLUTTER_NOTIFICATION_CLICK',
-        'screen' => $data['screen'] ?? '/main'
-    ];
+    $notificationData = array_merge(
+        $data['data'] ?? [],
+        [
+            'source' => 'admin_dashboard',
+            'timestamp' => date('c'),
+            'notification_type' => $data['type'] ?? 'general',
+            'click_action' => $data['click_action'] ?? 'FLUTTER_NOTIFICATION_CLICK',
+            'screen' => $data['screen'] ?? '/main',
+        ]
+    );
     
     $sender = new NotificationSender();
     
