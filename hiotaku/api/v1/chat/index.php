@@ -60,6 +60,41 @@ if (!empty($userMemory)) {
 // Add search tool capability
 $enhancedSystemPrompt .= "\n\nYou have access to Hiotaku's anime search. When users ask about anime availability, use internal search to check.";
 
+// Check if user is asking about a Hiotaku page
+function detectPageQuery($message) {
+    $pages = [
+        'terms'   => ['terms', 'tos', 'rules', 'niyam', 'conditions'],
+        'privacy' => ['privacy', 'policy', 'data', 'personal', 'information'],
+        'about'   => ['about', 'kaun', 'kya hai', 'platform', 'hiotaku kya'],
+        'contact' => ['contact', 'support', 'help', 'madad', 'reach'],
+        'blog'    => ['blog', 'article', 'post'],
+    ];
+    $msg = strtolower($message);
+    foreach ($pages as $page => $keywords) {
+        foreach ($keywords as $kw) {
+            if (strpos($msg, $kw) !== false) return $page;
+        }
+    }
+    return null;
+}
+
+function fetchPageContent($page) {
+    $base = __DIR__ . '/../../../../waiting/';
+    $files = [
+        'terms'   => $base . 'terms.html',
+        'privacy' => $base . 'privacy.html',
+        'about'   => $base . 'about.html',
+        'contact' => $base . 'contact.html',
+        'blog'    => $base . 'blog/index.html',
+    ];
+    if (!isset($files[$page]) || !file_exists($files[$page])) return null;
+    $html = file_get_contents($files[$page]);
+    $text = preg_replace('/<(script|style|nav|header|footer)[^>]*>.*?<\/\1>/si', '', $html);
+    $text = strip_tags($text);
+    $text = preg_replace('/\s+/', ' ', $text);
+    return trim(substr($text, 0, 2000));
+}
+
 // Check if user is asking about anime availability
 $isAnimeQuery = preg_match('/\b(anime|naruto|demon slayer|attack on titan|one piece|dragon ball|available|hiotaku|watch|stream|episode|mil jayega|hai kya)\b/i', $message);
 
@@ -195,6 +230,15 @@ function searchAnime($query) {
         
     } catch (Exception $e) {
         return ['timeout' => true, 'query' => $query];
+    }
+}
+
+// Add page content if user is asking about a page
+$detectedPage = detectPageQuery($message);
+if ($detectedPage) {
+    $pageContent = fetchPageContent($detectedPage);
+    if ($pageContent) {
+        $enhancedSystemPrompt .= "\n\nPage Content for '{$detectedPage}': " . $pageContent;
     }
 }
 
