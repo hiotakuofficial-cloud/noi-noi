@@ -33,9 +33,8 @@ define('SUPABASE_ANON_KEY', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdX
 define('FIREBASE_PROJECT_ID', 'hiotaku-flutter');
 
 // Get service account from env or file
-// TEMPORARILY FORCE FILE USAGE FOR DEBUGGING
 define('FIREBASE_SERVICE_ACCOUNT_PATH', __DIR__ . '/service-account.json');
-define('FIREBASE_SERVICE_ACCOUNT_JSON', null);
+define('FIREBASE_SERVICE_ACCOUNT_JSON', $_ENV['FIREBASE_SERVICE_ACCOUNT'] ?? null);
 
 define('FCM_ENDPOINT', 'https://fcm.googleapis.com/v1/projects/' . FIREBASE_PROJECT_ID . '/messages:send');
 define('OAUTH_ENDPOINT', 'https://oauth2.googleapis.com/token');
