@@ -41,7 +41,7 @@ if (empty($message)) {
 // Load environment variables
 loadEnv(__DIR__ . '/../../../.env');
 
-$API_KEY = $_ENV['API_KEY'] ?? '';
+$API_KEY = $_ENV['HISU_KEYS'] ?? $_ENV['API_KEY'] ?? '';
 $MODEL = $_ENV['MODEL'] ?? 'blackboxai/openai/gpt-4o-2024-11-20';
 $API_URL = $_ENV['API_URL'] ?? 'https://api.blackbox.ai/chat/completions';
 $SYSTEM_PROMPT = $_ENV['SYSTEM_PROMPT'] ?? 'You are Hisu.';
