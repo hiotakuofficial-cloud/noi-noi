@@ -76,28 +76,16 @@ try {
     $sendType = $data['send_type'] ?? 'specific';
     
     // Prepare notification data with click action support
-    $notificationData = [
-        'source' => 'flutter_app',
-        'timestamp' => date('c'),
-        'notification_type' => $data['type'] ?? 'general',
-        'click_action' => $data['click_action'] ?? 'FLUTTER_NOTIFICATION_CLICK',
-        'screen' => $data['screen'] ?? '/home',
-        'extra_data' => $data['data'] ?? []
-    ];
-    
-    // Add specific data based on notification type
-    if (isset($data['anime_id'])) {
-        $notificationData['anime_id'] = $data['anime_id'];
-    }
-    if (isset($data['episode_number'])) {
-        $notificationData['episode_number'] = $data['episode_number'];
-    }
-    if (isset($data['user_target_id'])) {
-        $notificationData['user_target_id'] = $data['user_target_id'];
-    }
-    if (isset($data['action_data'])) {
-        $notificationData['action_data'] = $data['action_data'];
-    }
+    $notificationData = array_merge(
+        is_array($data['data'] ?? null) ? $data['data'] : [],
+        [
+            'source' => 'flutter_app',
+            'timestamp' => date('c'),
+            'notification_type' => $data['type'] ?? 'general',
+            'click_action' => $data['click_action'] ?? 'FLUTTER_NOTIFICATION_CLICK',
+            'screen' => $data['screen'] ?? '/home',
+        ]
+    );
     
     // Initialize notification sender
     $sender = new NotificationSender();

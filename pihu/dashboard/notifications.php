@@ -102,6 +102,16 @@ textarea { resize: vertical; min-height: 100px; }
         <input type="url" id="image_url_2" placeholder="https://...thumbnail.jpg">
       </div>
 
+      <div class="form-group">
+        <label>Search Image from MovieBox</label>
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="imgSearch" placeholder="Search movie/anime name..." style="flex:1;">
+          <button type="button" class="btn" id="imgSearchBtn" style="padding:12px 20px;white-space:nowrap;">Search</button>
+        </div>
+        <div id="imgResults" style="display:none;margin-top:12px;display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;max-height:300px;overflow-y:auto;"></div>
+        <p id="imgCopied" style="display:none;color:#2de08b;font-size:0.8rem;margin-top:6px;">✓ URL copied to clipboard!</p>
+      </div>
+
       <button type="submit" class="btn" id="submitBtn">Send Notification</button>
       <div id="result" class="alert"></div>
     </form>
@@ -221,6 +231,42 @@ async function clearAllNotifications() {
   } catch (err) {
     alert('Failed to clear history');
   }
+}
+
+document.getElementById('imgSearchBtn').addEventListener('click', async function() {
+  const q = document.getElementById('imgSearch').value.trim();
+  if (!q) return;
+  const btn = this;
+  btn.textContent = 'Searching...'; btn.disabled = true;
+  const resultsDiv = document.getElementById('imgResults');
+  resultsDiv.style.display = 'grid';
+  resultsDiv.innerHTML = '<p style="color:#666;grid-column:1/-1;">Loading...</p>';
+  try {
+    const res = await fetch(`../../moviebox/api.php?action=search&keyword=${encodeURIComponent(q)}&perPage=20&token=afaea552101228848de8f8c7f48a1b7d7a6a042a6094274eaa9d30cb64bf91a7`);
+    const json = await res.json();
+    const items = json.data?.items || [];
+    if (!items.length) { resultsDiv.innerHTML = '<p style="color:#666;grid-column:1/-1;">No results</p>'; return; }
+    resultsDiv.innerHTML = items.map(item => {
+      const img = item.cover?.url || item.poster?.url || '';
+      const title = item.name || item.title || '';
+      return img ? `<div onclick="copyImgUrl('${img}')" title="${title}" style="cursor:pointer;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);" onmouseover="this.style.borderColor='#fff'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'">
+        <img src="${img}" style="width:100%;aspect-ratio:2/3;object-fit:cover;display:block;" loading="lazy">
+        <p style="font-size:0.7rem;padding:4px 6px;color:#aaa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${title}</p>
+      </div>` : '';
+    }).join('');
+  } catch(e) {
+    resultsDiv.innerHTML = '<p style="color:#ff4d6a;grid-column:1/-1;">Search failed</p>';
+  }
+  btn.textContent = 'Search'; btn.disabled = false;
+});
+
+function copyImgUrl(url) {
+  navigator.clipboard.writeText(url).then(() => {
+    document.getElementById('image_url').value = url;
+    const msg = document.getElementById('imgCopied');
+    msg.style.display = 'block';
+    setTimeout(() => msg.style.display = 'none', 2000);
+  });
 }
 
 loadHistory();

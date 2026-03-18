@@ -128,9 +128,15 @@ class NotificationSender {
         try {
             $accessToken = $this->getAccessToken();
             
+            $imageUrl = $notification['data']['image_url'] ?? null;
             $message = [
                 'message' => [
                     'token' => $token,
+                    'notification' => array_filter([
+                        'title' => $notification['title'],
+                        'body' => $notification['body'],
+                        'image' => $imageUrl,
+                    ]),
                     'data' => array_merge(
                         is_array($notification['data'] ?? []) ? $this->prepareData($notification['data'] ?? []) : [],
                         [
@@ -141,10 +147,11 @@ class NotificationSender {
                     ),
                     'android' => [
                         'priority' => 'high',
-                        'notification' => [
+                        'notification' => array_filter([
                             'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
-                            'channel_id' => HIGH_IMPORTANCE_CHANNEL,
-                        ]
+                            'channel_id' => 'general',
+                            'image' => $imageUrl,
+                        ]),
                     ],
                     'apns' => [
                         'payload' => [
@@ -153,7 +160,8 @@ class NotificationSender {
                                 'sound' => 'default',
                                 'content-available' => 1,
                             ]
-                        ]
+                        ],
+                        'fcm_options' => array_filter(['image' => $imageUrl]),
                     ]
                 ]
             ];
