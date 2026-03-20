@@ -299,6 +299,17 @@ body {
   </div>
 
   <div class="grid">
+    <a href="cron_notifications.php" class="card">
+      <div class="card-top">
+        <span class="label">01b / AI Cron</span>
+        <i class="card-icon fas fa-robot"></i>
+        <h2 class="card-title">Hisu Scheduler</h2>
+      </div>
+      <div>
+        <p class="card-desc">Hisu AI auto-generates 15 daily notifications — 5 anime + 10 trending.</p>
+        <span class="card-link">View Module →</span>
+      </div>
+    </a>
     <a href="notifications.php" class="card">
       <div class="card-top">
         <span class="label">01 / Notifications</span>
